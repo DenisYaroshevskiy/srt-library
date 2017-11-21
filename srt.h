@@ -224,6 +224,17 @@ I partition_point_biased(I f, I l, P p) {
   return f;
 }
 
+template <typename I, typename P>
+// requires BidirectionalIterator<I> && UnaryPredicate<P, ValueType<I>>
+I partition_point_hinted(I f, I hint, I l, P p) {
+  I rhs = partition_point_biased(hint, l, p);
+  if (rhs != hint)
+    return rhs;
+
+  return partition_point_biased(std::reverse_iterator<I>(hint),
+                                std::reverse_iterator<I>(f), not_fn(p)).base();
+}
+
 template <typename I, typename V, typename Compare>
 I lower_bound_biased(I f, I l, V v, Compare comp) {
   return partition_point_biased(f, l,
@@ -234,6 +245,20 @@ template <typename I, typename V>
 I lower_bound_biased(I f, I l, V v) {
   return lower_bound_biased(f, l, v, less{});
 }
+
+template <typename I, typename V, typename Compare>
+I lower_bound_hinted(I f, I hint, I l, V v, Compare comp) {
+  return partition_point_hinted(f, hint, l,
+                                [&](Reference<I> x) { return comp(x, v); });
+}
+
+template <typename I, typename V>
+I lower_bound_hinted(I f, I hint, I l, V v) {
+  return lower_bound_hinted(f, hint, l, v, less{});
+}
+
+
+// flat_set -------------------------------------------------------------------
 
 namespace detail {
 
@@ -462,7 +487,10 @@ class flat_set {
   template <typename V,
             typename = detail::insert_should_be_enabled<value_type, V>>
   iterator insert(const_iterator hint, V&& v) {
-    return insert(v).first;
+    auto pos = lower_bound_hinted(cbegin(), hint, cend(), v, value_comp());
+    if (pos == end() || value_comp()(v, *pos))
+      return body().insert(pos, std::forward<V>(v));
+    return const_cast_iterator(pos);
   }
 
   template <typename I>

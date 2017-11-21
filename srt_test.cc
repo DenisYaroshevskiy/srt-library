@@ -22,6 +22,19 @@ TEST_CASE("lower_bound_biased", "[algorithms]") {
   }
 }
 
+TEST_CASE("lower_bound_hinted", "[algorithms]") {
+  std::vector<int> vec(100);
+  std::iota(vec.begin(), vec.end(), 1);
+  for (int x = 0; x <= 101; ++x) {
+    auto hint = vec.begin();
+    for (auto size = vec.size() + 1; size; --size) {
+      REQUIRE(std::lower_bound(vec.begin(), vec.end(), x) ==
+              srt::lower_bound_hinted(vec.begin(), hint, vec.end(), x));
+      ++hint;
+    }
+  }
+}
+
 // flat_set -------------------------------------------------------------------
 
 namespace {
