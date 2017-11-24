@@ -69,9 +69,11 @@ def drawPlot(variations):
   layout = {}
 
   dtick_x = 40
-  dtick_y = 1000
+  dtick_y = 500
+  x_title = 'rhs size'
   if flat_sets == True:
     dtick_y = 5000
+    x_title = 'inserting elements size'
   if last_40 == True:
     dtick_x = 1
     dtick_y = 200
@@ -79,7 +81,7 @@ def drawPlot(variations):
       dtick_y = 1000
 
 
-  layout['xaxis'] = dict(title='inserting elements size',
+  layout['xaxis'] = dict(title=x_title,
                          autotick=False,
                          ticks='outside',
                          tick0=0,
