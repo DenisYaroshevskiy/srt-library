@@ -12,7 +12,7 @@ namespace {
 constexpr size_t kProblemSize = 2000;
 constexpr size_t kMinSize = 0;
 constexpr size_t kStep = 40;
-constexpr bool kLastStep = false;
+constexpr bool kLastStep = true;
 
 using int_vec = std::vector<int>;
 
@@ -99,14 +99,14 @@ struct baseline_alg {
 struct previous_set_union {
   template <typename I1, typename I2, typename O>
   O operator()(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
-    return v6::set_union(f1, l1, f2, l2, o, std::less<>{});
+    return v7::set_union(f1, l1, f2, l2, o, std::less<>{});
   }
 };
 
 struct current_set_union {
   template <typename I1, typename I2, typename O>
   O operator()(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
-    return v7::set_union(f1, l1, f2, l2, o, std::less<>{});
+    return v8::set_union(f1, l1, f2, l2, o, std::less<>{});
   }
 };
 

@@ -161,3 +161,9 @@ TEST_CASE("v7_set_union", "[set_unions]") {
     return v7::set_union(f1, l1, f2, l2, o, std::less<>{});
   });
 }
+
+TEST_CASE("v8_set_union", "[set_unions]") {
+  set_union_test([](auto f1, auto l1, auto f2, auto l2, auto o) {
+    return v8::set_union(f1, l1, f2, l2, o, std::less<>{});
+  });
+}
