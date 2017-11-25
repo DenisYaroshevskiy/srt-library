@@ -76,7 +76,7 @@ def drawPlot(variations):
     x_title = 'inserting elements size'
   if last_40 == True:
     dtick_x = 1
-    dtick_y = 200
+    dtick_y = 100
     if flat_sets == True:
       dtick_y = 1000
 

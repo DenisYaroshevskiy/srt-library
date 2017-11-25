@@ -7,12 +7,19 @@
 
 #include "benchmark/benchmark.h"
 
+#define LAST_STEP
+
 namespace {
 
 constexpr size_t kProblemSize = 2000;
 constexpr size_t kMinSize = 0;
 constexpr size_t kStep = 40;
+
+#ifdef LAST_STEP
 constexpr bool kLastStep = true;
+#else
+constexpr bool kLastStep = false;
+#endif  // LAST_STEP
 
 using int_vec = std::vector<int>;
 
@@ -96,23 +103,42 @@ struct baseline_alg {
   }
 };
 
-struct previous_set_union {
+#ifndef LAST_STEP
+
+struct linear_set_union {
   template <typename I1, typename I2, typename O>
   O operator()(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
     return v7::set_union(f1, l1, f2, l2, o, std::less<>{});
   }
 };
 
-struct current_set_union {
+#endif  // !LAST_STEP
+
+struct previous_set_union {
   template <typename I1, typename I2, typename O>
   O operator()(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
     return v8::set_union(f1, l1, f2, l2, o, std::less<>{});
   }
 };
 
+struct current_set_union {
+  template <typename I1, typename I2, typename O>
+  O operator()(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
+    return v9::set_union(f1, l1, f2, l2, o, std::less<>{});
+  }
+};
+
 void baseline(benchmark::State& state) {
   set_union_bench<baseline_alg>(state);
 }
+
+#ifndef LAST_STEP
+
+void LinearSetUnion(benchmark::State& state) {
+  set_union_bench<linear_set_union>(state);
+}
+
+#endif  // LAST_STEP
 
 void PreviousSetUnion(benchmark::State& state) {
   set_union_bench<previous_set_union>(state);
@@ -123,6 +149,10 @@ void CurrentSetUnion(benchmark::State& state) {
 }
 
 BENCHMARK(baseline)->Apply(set_input_sizes);
+
+#ifndef LAST_STEP
+BENCHMARK(LinearSetUnion)->Apply(set_input_sizes);
+#endif  // LAST_STEP
 
 BENCHMARK(PreviousSetUnion)->Apply(set_input_sizes);
 
