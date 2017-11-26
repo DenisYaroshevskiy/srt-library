@@ -69,14 +69,14 @@ def drawPlot(variations):
   layout = {}
 
   dtick_x = 40
-  dtick_y = 500
+  dtick_y = 250
   x_title = 'rhs size'
   if flat_sets == True:
     dtick_y = 5000
     x_title = 'inserting elements size'
   if last_40 == True:
     dtick_x = 1
-    dtick_y = 100
+    dtick_y = 50
     if flat_sets == True:
       dtick_y = 1000
 
