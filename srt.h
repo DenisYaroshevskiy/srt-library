@@ -146,6 +146,123 @@ typename std::enable_if
 >::type;
 // clang-format on
 
+template <typename I, typename P>
+I partition_point_biased_no_checks(I f, P p) {
+  while(true) {
+    if (!p(*f)) return f; ++f;
+    if (!p(*f)) return f;  ++f;
+    if (!p(*f)) return f;  ++f;
+    for (DifferenceType<I> step = 2;; step += step) {
+      I test = std::next(f, step);
+      if (!p(*test)) break;
+      f = ++test;
+    }
+  }
+}
+
+template <typename I>
+I middle(I f, I l) {
+  static_assert(
+    std::numeric_limits<DifferenceType<I>>::max() <=
+    std::numeric_limits<size_t>::max(),
+    "iterators difference type is too big");
+  return std::next(f, static_cast<size_t>(std::distance(f, l)) / 2);
+}
+
+template <typename I, typename P>
+I find_boundary(I f, I l, P p) {
+  I sent = middle(f, l);
+  if (p(*sent)) return sent;
+  return partition_point_biased_no_checks(f, p);
+}
+
+template <class I1, class I2, class O, class Comp>
+std::tuple<I1, I2, O> set_union_intersecting_parts(I1 f1,
+                                                   I1 l1,
+                                                   I2 f2,
+                                                   I2 l2,
+                                                   O o,
+                                                   Comp comp) {
+  if (f1 == l1) goto copySecond;
+  if (f2 == l2) goto copyFirst;
+
+  while (true) {
+    if (!comp(*f1, *f2)) goto checkSecond;
+    *o++ = *f1++; if (f1 == l1) goto copySecond;
+    goto biased;
+
+   checkSecond:
+    if (comp(*f2, *f1)) *o++ = *f2;
+    ++f2; if (f2 == l2) goto copyFirst;
+
+   biased:
+    if (!comp(*f1, *f2)) goto checkSecond;
+    *o++ = *f1++; if (f1 == l1) goto copySecond;
+    if (!comp(*f1, *f2)) goto checkSecond;
+    *o++ = *f1++; if (f1 == l1) goto copySecond;
+    if (!comp(*f1, *f2)) goto checkSecond;
+    *o++ = *f1++; if (f1 == l1) goto copySecond;
+    if (!comp(*f1, *f2)) goto checkSecond;
+    *o++ = *f1++; if (f1 == l1) goto copySecond;
+
+    I1 segment_end =
+        find_boundary(f1, l1, [&](Reference<I1> x) { return comp(x, *f2); });
+    o = detail::copy(f1, segment_end, o);
+    f1 = segment_end;
+  }
+
+ copySecond:
+ copyFirst:
+  return std::make_tuple(f1, f2, o);
+}
+
+template <typename I1, typename I2, typename P>
+// requires ForwardIterator<I1> && ForwardIterator<I2> &&
+//          StrictWeakOrdering<P, ValueType<I>>
+std::pair<I1, I1> set_union_into_tail(I1 buf, I1 f1, I1 l1, I2 f2, I2 l2, P p) {
+  std::move_iterator<I1> move_f1;
+  std::tie(move_f1, f2, buf) =
+      set_union_intersecting_parts(std::make_move_iterator(f1),  //
+                                   std::make_move_iterator(l1),  //
+                                   f2, l2,                       //
+                                   buf, p);                      //
+
+  return {detail::copy(f2, l2, buf), move_f1.base()};
+}
+
+template <typename C, typename I, typename P>
+// requires  Container<C> &&  ForwardIterator<I> &&
+//           StrictWeakOrdering<P(ValueType<C>)>
+void insert_first_last_impl(C& c, I f, I l, P p) {
+  auto new_len = std::distance(f, l);
+  auto orig_len = c.size();
+  c.resize(orig_len + 2 * new_len);
+
+  Iterator<C> orig_f = c.begin();
+  Iterator<C> orig_l = c.begin() + orig_len;
+  Iterator<C> f_in = c.end() - new_len;
+  Iterator<C> l_in = c.end();
+  Iterator<C> buf = f_in;
+
+  detail::copy(f, l, f_in);
+  l_in = sort_and_unique(f_in, l_in, p);
+
+  using reverse_it = typename C::reverse_iterator;
+  auto move_reverse_it =
+      [](Iterator<C> it) { return std::make_move_iterator(reverse_it(it)); };
+
+  auto reverse_remainig_buf_range = detail::set_union_into_tail(
+      reverse_it(buf), reverse_it(orig_l), reverse_it(orig_f),
+      move_reverse_it(l_in), move_reverse_it(f_in), inverse_fn(p));
+
+  auto remaining_buf =
+      std::make_pair(reverse_remainig_buf_range.second.base() - c.begin(),
+                     reverse_remainig_buf_range.first.base() - c.begin());
+
+  c.erase(c.end() - new_len, c.end());
+  c.erase(c.begin() + remaining_buf.first, c.begin() + remaining_buf.second);
+}
+
 }  // namespace detail
 
 
@@ -200,25 +317,11 @@ I sort_and_unique(I f, I l) {
 }
 
 template <typename I, typename P>
-I partition_point_biased_no_checks(I f, I l, P p) {
-   while(true) {
-    if (!p(*f)) return f; ++f;
-    if (!p(*f)) return f; ++f;
-    if (!p(*f)) return f; ++f;
-    for (int step = 2;; step <<= 1) {
-      auto test = std::next(f, step);
-      if (!p(*test)) break;
-      f = ++test;
-    }
-  }
-}
-
-template <typename I, typename P>
 // requires ForwardIterator<I> && UnaryPredicate<P, ValueType<I>>
 I partition_point_biased(I f, I l, P p) {
   while (f != l) {
-    I sent = std::next(f, static_cast<size_t>(std::distance(f, l)) / 2);
-    if (!p(*sent)) return partition_point_biased_no_checks(f, l , p);
+    I sent = detail::middle(f, l);
+    if (!p(*sent)) return detail::partition_point_biased_no_checks(f, p);
     f = ++sent;
   }
   return f;
@@ -259,95 +362,6 @@ I lower_bound_hinted(I f, I hint, I l, V v) {
 
 
 // flat_set -------------------------------------------------------------------
-
-namespace detail {
-
-template <class I1, class I2, class O, class Comp>
-std::tuple<I1, I2, O> set_union_intersecting_parts(I1 f1,
-                                                   I1 l1,
-                                                   I2 f2,
-                                                   I2 l2,
-                                                   O o,
-                                                   Comp comp) {
-  if (f1 == l1) goto copySecond;
-  if (f2 == l2) goto copyFirst;
-
-  while (true) {
-    if (__builtin_expect(!comp(*f1, *f2), false)) goto checkSecond;
-    *o++ = *f1++; if (f1 == l1) goto copySecond;
-    goto biased;
-
-  checkSecond:
-    if (comp(*f2, *f1)) *o++ = *f2;
-    ++f2; if (f2 == l2) goto copyFirst;
-
-  biased:
-    if (!comp(*f1, *f2)) goto checkSecond;
-    *o++ = *f1++; if (f1 == l1) goto copySecond;
-    if (!comp(*f1, *f2)) goto checkSecond;
-    *o++ = *f1++; if (f1 == l1) goto copySecond;
-    if (!comp(*f1, *f2)) goto checkSecond;
-    *o++ = *f1++;
-
-    auto segment_end = lower_bound_biased(f1, l1, *f2, comp);
-    o = std::copy(f1, segment_end, o);
-    f1 = segment_end; if (f1 == l1) goto copySecond;
-  }
-
-copySecond:
-copyFirst:
-  return std::make_tuple(f1, f2, o);
-}
-
-template <typename I1, typename I2, typename P>
-// requires ForwardIterator<I1> && ForwardIterator<I2> &&
-//          StrictWeakOrdering<P, ValueType<I>>
-std::pair<I1, I1> set_union_into_tail(I1 buf, I1 f1, I1 l1, I2 f2, I2 l2, P p) {
-  std::move_iterator<I1> move_f1;
-  std::tie(move_f1, f2, buf) =
-      set_union_intersecting_parts(std::make_move_iterator(f1),  //
-                                   std::make_move_iterator(l1),  //
-                                   f2, l2,                       //
-                                   buf, p);                      //
-
-  return {detail::copy(f2, l2, buf), move_f1.base()};
-}
-
-template <typename C, typename I, typename P>
-// requires  Container<C> &&  ForwardIterator<I> &&
-//           StrictWeakOrdering<P(ValueType<C>)>
-void insert_first_last_impl(C& c, I f, I l, P p) {
-  auto new_len = std::distance(f, l);
-  auto orig_len = c.size();
-  c.resize(orig_len + 2 * new_len);
-
-  Iterator<C> orig_f = c.begin();
-  Iterator<C> orig_l = c.begin() + orig_len;
-  Iterator<C> f_in = c.end() - new_len;
-  Iterator<C> l_in = c.end();
-  Iterator<C> buf = f_in;
-
-  detail::copy(f, l, f_in);
-  l_in = sort_and_unique(f_in, l_in, p);
-
-  using reverse_it = typename C::reverse_iterator;
-  auto move_reverse_it =
-      [](Iterator<C> it) { return std::make_move_iterator(reverse_it(it)); };
-
-  auto reverse_remainig_buf_range = detail::set_union_into_tail(
-      reverse_it(buf), reverse_it(orig_l), reverse_it(orig_f),
-      move_reverse_it(l_in), move_reverse_it(f_in), inverse_fn(p));
-
-  auto remaining_buf =
-      std::make_pair(reverse_remainig_buf_range.second.base() - c.begin(),
-                     reverse_remainig_buf_range.first.base() - c.begin());
-
-  c.erase(c.end() - new_len, c.end());
-  c.erase(c.begin() + remaining_buf.first, c.begin() + remaining_buf.second);
-}
-
-}  // namespace detail
-
 
 template <typename Key,
           typename Comparator = less,

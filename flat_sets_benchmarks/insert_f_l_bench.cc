@@ -5,6 +5,7 @@
 
 #include <boost/container/flat_set.hpp>
 #include <folly/sorted_vector_types.h>
+#include "srt.h"
 
 #include "benchmark/benchmark.h"
 
@@ -109,14 +110,21 @@ void baseline(benchmark::State& state) {
 }
 BENCHMARK(baseline)->Apply(set_input_sizes);
 
+void Srt(benchmark::State& state) {
+  insert_first_last_bench<srt::flat_set<int>>(state);
+}
+BENCHMARK(Srt)->Apply(set_input_sizes);
+
 void Boost(benchmark::State& state) {
   insert_first_last_bench<boost::container::flat_set<int>>(state);
 }
 BENCHMARK(Boost)->Apply(set_input_sizes);
 
+#if 0
 void Folly(benchmark::State& state) {
   insert_first_last_bench<folly::sorted_vector_set<int>>(state);
 }
 BENCHMARK(Folly)->Apply(set_input_sizes);
+#endif
 
 BENCHMARK_MAIN();
