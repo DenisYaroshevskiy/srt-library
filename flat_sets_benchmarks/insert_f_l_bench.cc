@@ -2,6 +2,7 @@
 #include <exception>
 #include <random>
 #include <set>
+#include <iostream>
 
 #include <boost/container/flat_set.hpp>
 #include <folly/sorted_vector_types.h>
@@ -14,7 +15,7 @@ namespace {
 constexpr size_t kProblemSize = 2000;
 constexpr size_t kMinSize = 0;
 constexpr size_t kStep = 40;
-constexpr bool kLastStep = true;
+constexpr bool kLastStep = false;
 
 using int_vec = std::vector<int>;
 
@@ -55,18 +56,24 @@ std::pair<int_vec, int_vec> test_input_data(size_t lhs_size, size_t rhs_size) {
     return dis(g);
   };
 
-  auto generate_vec = [&](size_t size) {
+  auto generate_unique_sorted_vec = [&](size_t size) {
     std::set<int> res;
     while (res.size() < size)
       res.insert(random_number());
     return int_vec(res.begin(), res.end());
   };
 
-  auto res_and_bool = cached_results.insert(
-      {{lhs_size, rhs_size}, {generate_vec(lhs_size), generate_vec(rhs_size)}});
-  if (!res_and_bool.second)
-    std::terminate();
-  return res_and_bool.first->second;
+  auto generate_vec = [&](size_t size) {
+    int_vec res(size);
+    std::generate(res.begin(), res.end(), random_number);
+    return res;
+  };
+
+  std::pair<int_vec, int_vec> value{generate_unique_sorted_vec(lhs_size),
+                                    generate_vec(rhs_size)};
+  auto& res = cached_results[{lhs_size, rhs_size}];
+  res = std::move(value);
+  return res;
 }
 
 void set_input_sizes(benchmark::internal::Benchmark* bench) {
@@ -110,21 +117,44 @@ void baseline(benchmark::State& state) {
 }
 BENCHMARK(baseline)->Apply(set_input_sizes);
 
+struct sort_rhs {
+  template <typename I>
+  sort_rhs(I f, I l)
+      : body(f, l){};
+
+  template <typename I>
+  void insert(I f, I l) {
+    auto prev_size = body.size();
+    body.insert(body.end(), f, l);
+    std::sort(body.begin() + prev_size, body.end());
+  }
+
+  void reserve(size_t size) { body.reserve(size); }
+  size_t size() { return body.size(); }
+
+  int_vec body;
+};
+
+void SortRhs(benchmark::State& state) {
+  insert_first_last_bench<sort_rhs>(state);
+}
+BENCHMARK(SortRhs)->Apply(set_input_sizes);
+
 void Srt(benchmark::State& state) {
   insert_first_last_bench<srt::flat_set<int>>(state);
 }
 BENCHMARK(Srt)->Apply(set_input_sizes);
 
+#if 0
 void Boost(benchmark::State& state) {
   insert_first_last_bench<boost::container::flat_set<int>>(state);
 }
 BENCHMARK(Boost)->Apply(set_input_sizes);
+#endif
 
-#if 0
 void Folly(benchmark::State& state) {
   insert_first_last_bench<folly::sorted_vector_set<int>>(state);
 }
 BENCHMARK(Folly)->Apply(set_input_sizes);
-#endif
 
 BENCHMARK_MAIN();
