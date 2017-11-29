@@ -1,0 +1,319 @@
+{
+  "context": {
+    "date": "2017-11-29 22:20:26",
+    "num_cpus": 8,
+    "mhz_per_cpu": 2200,
+    "cpu_scaling_enabled": false,
+    "library_build_type": "release"
+  },
+  "benchmarks": [
+    {
+      "name": "baseline/10/0",
+      "iterations": 9244707,
+      "real_time": 7.3913764708882454e+01,
+      "cpu_time": 7.3775188332090991e+01,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/9/1",
+      "iterations": 9339435,
+      "real_time": 7.1823263398038932e+01,
+      "cpu_time": 7.1821903573396028e+01,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/8/2",
+      "iterations": 9638554,
+      "real_time": 7.1033316512124699e+01,
+      "cpu_time": 7.1000587847513216e+01,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/7/3",
+      "iterations": 9105217,
+      "real_time": 7.2242395101650757e+01,
+      "cpu_time": 7.2239464474048177e+01,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/6/4",
+      "iterations": 9165183,
+      "real_time": 7.2509612082660098e+01,
+      "cpu_time": 7.2507444750421215e+01,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/5/5",
+      "iterations": 9335449,
+      "real_time": 7.1029998771244735e+01,
+      "cpu_time": 7.1030113281107290e+01,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/4/6",
+      "iterations": 9422533,
+      "real_time": 7.0658789096096086e+01,
+      "cpu_time": 7.0658707165047915e+01,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/3/7",
+      "iterations": 9453455,
+      "real_time": 7.1363766792153470e+01,
+      "cpu_time": 7.1362269138637672e+01,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/2/8",
+      "iterations": 9068062,
+      "real_time": 7.1665516843924394e+01,
+      "cpu_time": 7.1664596029449314e+01,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1/9",
+      "iterations": 8771600,
+      "real_time": 7.2120781841351146e+01,
+      "cpu_time": 7.2103379087053511e+01,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/0/10",
+      "iterations": 754700707,
+      "real_time": 8.8861598482958737e-01,
+      "cpu_time": 8.8861583642321762e-01,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Srt/10/0",
+      "iterations": 7800051,
+      "real_time": 8.6100825622778075e+01,
+      "cpu_time": 8.6098026794952986e+01,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Srt/9/1",
+      "iterations": 3402766,
+      "real_time": 2.2383869651941583e+02,
+      "cpu_time": 2.2383555025529208e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Srt/8/2",
+      "iterations": 3280748,
+      "real_time": 2.0283928512767139e+02,
+      "cpu_time": 2.0283941345083477e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Srt/7/3",
+      "iterations": 2910409,
+      "real_time": 2.3687589579146345e+02,
+      "cpu_time": 2.3687598547145780e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Srt/6/4",
+      "iterations": 3169500,
+      "real_time": 2.4750598201526429e+02,
+      "cpu_time": 2.4741915128569190e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Srt/5/5",
+      "iterations": 3159615,
+      "real_time": 2.3878965918277339e+02,
+      "cpu_time": 2.3878478865304768e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Srt/4/6",
+      "iterations": 3134979,
+      "real_time": 2.4493165919104442e+02,
+      "cpu_time": 2.4493178423204753e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Srt/3/7",
+      "iterations": 3072021,
+      "real_time": 2.3250695356637192e+02,
+      "cpu_time": 2.3250166584147638e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Srt/2/8",
+      "iterations": 3183670,
+      "real_time": 2.3049395571830942e+02,
+      "cpu_time": 2.3040233441279926e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Srt/1/9",
+      "iterations": 3140704,
+      "real_time": 2.5355492335437984e+02,
+      "cpu_time": 2.5355461705400990e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Srt/0/10",
+      "iterations": 5655880,
+      "real_time": 1.2037268453411676e+02,
+      "cpu_time": 1.2034201574290769e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/10/0",
+      "iterations": 9163503,
+      "real_time": 7.2525465643084885e+01,
+      "cpu_time": 7.2525539632605771e+01,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/9/1",
+      "iterations": 3277476,
+      "real_time": 2.1540218143453203e+02,
+      "cpu_time": 2.1540234009341327e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/8/2",
+      "iterations": 3151634,
+      "real_time": 2.2500154364363459e+02,
+      "cpu_time": 2.2500169753213672e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/7/3",
+      "iterations": 3187338,
+      "real_time": 2.4067938668619266e+02,
+      "cpu_time": 2.4067827133488873e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/6/4",
+      "iterations": 2754799,
+      "real_time": 2.4145099697038771e+02,
+      "cpu_time": 2.4145100967438987e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/5/5",
+      "iterations": 2448186,
+      "real_time": 2.6277787267787295e+02,
+      "cpu_time": 2.6277537736103335e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/4/6",
+      "iterations": 1300414,
+      "real_time": 4.5292527918232628e+02,
+      "cpu_time": 4.5292499157960390e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/3/7",
+      "iterations": 1664697,
+      "real_time": 4.6907006139766889e+02,
+      "cpu_time": 4.6903070048182957e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/2/8",
+      "iterations": 1092709,
+      "real_time": 6.0994484625344194e+02,
+      "cpu_time": 6.0994464216914264e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1/9",
+      "iterations": 975583,
+      "real_time": 6.8582354346098828e+02,
+      "cpu_time": 6.8582375871658166e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/0/10",
+      "iterations": 948792,
+      "real_time": 7.2480584574994737e+02,
+      "cpu_time": 7.2478267101746451e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/10/0",
+      "iterations": 9034939,
+      "real_time": 7.5176188792877980e+01,
+      "cpu_time": 7.5144392231093036e+01,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/9/1",
+      "iterations": 2063929,
+      "real_time": 3.1263468317013690e+02,
+      "cpu_time": 3.1263478540201714e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/8/2",
+      "iterations": 3625403,
+      "real_time": 1.7938800817326646e+02,
+      "cpu_time": 1.7938805699669905e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/7/3",
+      "iterations": 2218504,
+      "real_time": 3.1300943428621804e+02,
+      "cpu_time": 3.1300957762528139e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/6/4",
+      "iterations": 2067440,
+      "real_time": 3.8426199212388298e+02,
+      "cpu_time": 3.8399469875788100e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/5/5",
+      "iterations": 2426629,
+      "real_time": 2.8392208162033887e+02,
+      "cpu_time": 2.8384891139106821e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/4/6",
+      "iterations": 2243288,
+      "real_time": 3.0690739084727232e+02,
+      "cpu_time": 3.0690753929054159e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/3/7",
+      "iterations": 2453988,
+      "real_time": 3.0696982584922966e+02,
+      "cpu_time": 3.0696971623333241e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/2/8",
+      "iterations": 2474434,
+      "real_time": 3.0709447655440715e+02,
+      "cpu_time": 3.0709487503000753e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1/9",
+      "iterations": 2379447,
+      "real_time": 2.8909178141126199e+02,
+      "cpu_time": 2.8909196128344206e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/0/10",
+      "iterations": 6294794,
+      "real_time": 1.0844072720982012e+02,
+      "cpu_time": 1.0838670812738232e+02,
+      "time_unit": "ns"
+    }
+  ]
+}

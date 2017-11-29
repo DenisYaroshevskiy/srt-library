@@ -1,0 +1,872 @@
+{
+  "context": {
+    "date": "2017-11-28 01:23:53",
+    "num_cpus": 8,
+    "mhz_per_cpu": 2200,
+    "cpu_scaling_enabled": false,
+    "library_build_type": "release"
+  },
+  "benchmarks": [
+    {
+      "name": "baseline/2000/0",
+      "iterations": 4362675,
+      "real_time": 1.5553299776071381e+02,
+      "cpu_time": 1.5550963571661882e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1999/1",
+      "iterations": 4390917,
+      "real_time": 1.5674334541049970e+02,
+      "cpu_time": 1.5672170528388486e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1998/2",
+      "iterations": 4345883,
+      "real_time": 1.5579713627931920e+02,
+      "cpu_time": 1.5579365574268795e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1997/3",
+      "iterations": 4408838,
+      "real_time": 1.5463891914342310e+02,
+      "cpu_time": 1.5463893207235114e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1996/4",
+      "iterations": 4443006,
+      "real_time": 1.5619140554842659e+02,
+      "cpu_time": 1.5617106976672997e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1995/5",
+      "iterations": 4448003,
+      "real_time": 1.5518161138834199e+02,
+      "cpu_time": 1.5518177483243596e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1994/6",
+      "iterations": 4309734,
+      "real_time": 1.5538607858423134e+02,
+      "cpu_time": 1.5538615608295072e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1993/7",
+      "iterations": 4285461,
+      "real_time": 1.5586623539507912e+02,
+      "cpu_time": 1.5585184417732398e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1992/8",
+      "iterations": 4441540,
+      "real_time": 1.5388164532944378e+02,
+      "cpu_time": 1.5388018570135583e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1991/9",
+      "iterations": 4455704,
+      "real_time": 1.5428632086000331e+02,
+      "cpu_time": 1.5428874988105144e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1990/10",
+      "iterations": 4356024,
+      "real_time": 1.5634878090641968e+02,
+      "cpu_time": 1.5632558498300293e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1989/11",
+      "iterations": 4468560,
+      "real_time": 1.5416985382267268e+02,
+      "cpu_time": 1.5416979966700643e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1988/12",
+      "iterations": 4489971,
+      "real_time": 1.5432881905024405e+02,
+      "cpu_time": 1.5432883642232895e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1987/13",
+      "iterations": 4410755,
+      "real_time": 1.5611590056494720e+02,
+      "cpu_time": 1.5611363587413055e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1986/14",
+      "iterations": 4490202,
+      "real_time": 1.5686604745194626e+02,
+      "cpu_time": 1.5685508135268722e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1985/15",
+      "iterations": 4378284,
+      "real_time": 1.5436460426088485e+02,
+      "cpu_time": 1.5436458667368291e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1984/16",
+      "iterations": 4428138,
+      "real_time": 1.5590911349128837e+02,
+      "cpu_time": 1.5590932351250129e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1983/17",
+      "iterations": 4305493,
+      "real_time": 1.5875981960638816e+02,
+      "cpu_time": 1.5872375126379262e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1982/18",
+      "iterations": 4306553,
+      "real_time": 1.5648479329077108e+02,
+      "cpu_time": 1.5648361926580333e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1981/19",
+      "iterations": 4374453,
+      "real_time": 1.5499681400193305e+02,
+      "cpu_time": 1.5499194985064392e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1980/20",
+      "iterations": 4405924,
+      "real_time": 1.5436804947125111e+02,
+      "cpu_time": 1.5436830049723881e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1979/21",
+      "iterations": 4466907,
+      "real_time": 1.5633945143566766e+02,
+      "cpu_time": 1.5633658815820414e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1978/22",
+      "iterations": 4415596,
+      "real_time": 1.5387989662141194e+02,
+      "cpu_time": 1.5388001982065398e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1977/23",
+      "iterations": 4484994,
+      "real_time": 1.5335486624988505e+02,
+      "cpu_time": 1.5333420735902860e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1976/24",
+      "iterations": 4476906,
+      "real_time": 1.5331912642418428e+02,
+      "cpu_time": 1.5331927898419175e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1975/25",
+      "iterations": 4468732,
+      "real_time": 1.5322564163592548e+02,
+      "cpu_time": 1.5322400179737849e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1974/26",
+      "iterations": 4485052,
+      "real_time": 1.5394616539569412e+02,
+      "cpu_time": 1.5394091305964761e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1973/27",
+      "iterations": 4386267,
+      "real_time": 1.5438714811464610e+02,
+      "cpu_time": 1.5438116284302748e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1972/28",
+      "iterations": 4463289,
+      "real_time": 1.5351833569365306e+02,
+      "cpu_time": 1.5351840313275673e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1971/29",
+      "iterations": 4504649,
+      "real_time": 1.5362116360230644e+02,
+      "cpu_time": 1.5359909284829962e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1970/30",
+      "iterations": 4461071,
+      "real_time": 1.5390729378742256e+02,
+      "cpu_time": 1.5390676364487393e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1969/31",
+      "iterations": 4418522,
+      "real_time": 1.5371785859487829e+02,
+      "cpu_time": 1.5371225943878966e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1968/32",
+      "iterations": 4508741,
+      "real_time": 1.5343025625116854e+02,
+      "cpu_time": 1.5343019259700256e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1967/33",
+      "iterations": 4340170,
+      "real_time": 1.5530354571381392e+02,
+      "cpu_time": 1.5524322779983254e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1966/34",
+      "iterations": 4401796,
+      "real_time": 1.5557872513853275e+02,
+      "cpu_time": 1.5554878054321472e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1965/35",
+      "iterations": 4453918,
+      "real_time": 1.5509527633939209e+02,
+      "cpu_time": 1.5506414801529752e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1964/36",
+      "iterations": 4500566,
+      "real_time": 1.5316694455689449e+02,
+      "cpu_time": 1.5316717941698897e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1963/37",
+      "iterations": 4504215,
+      "real_time": 1.5433628767676367e+02,
+      "cpu_time": 1.5428237772841680e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1962/38",
+      "iterations": 4483041,
+      "real_time": 1.5427246416142702e+02,
+      "cpu_time": 1.5427139747327664e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1961/39",
+      "iterations": 4424891,
+      "real_time": 1.5477221698843661e+02,
+      "cpu_time": 1.5476697618088187e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "baseline/1960/40",
+      "iterations": 4534707,
+      "real_time": 1.5325782900532818e+02,
+      "cpu_time": 1.5325532608832341e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/2000/0",
+      "iterations": 4426066,
+      "real_time": 1.5525729575717941e+02,
+      "cpu_time": 1.5525728717104704e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1999/1",
+      "iterations": 1758096,
+      "real_time": 3.8372529429440186e+02,
+      "cpu_time": 3.8372534833137865e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1998/2",
+      "iterations": 1479165,
+      "real_time": 4.7493227327100345e+02,
+      "cpu_time": 4.7492538019760940e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1997/3",
+      "iterations": 1344809,
+      "real_time": 4.9873839705216159e+02,
+      "cpu_time": 4.9873922616520957e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1996/4",
+      "iterations": 1045791,
+      "real_time": 6.2230647902239195e+02,
+      "cpu_time": 6.2229451200095775e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1995/5",
+      "iterations": 962517,
+      "real_time": 6.5805654965035956e+02,
+      "cpu_time": 6.5803305292270625e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1994/6",
+      "iterations": 929331,
+      "real_time": 7.0728006275713960e+02,
+      "cpu_time": 7.0728082889734367e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1993/7",
+      "iterations": 737347,
+      "real_time": 9.3670631738351665e+02,
+      "cpu_time": 9.3656311071991331e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1992/8",
+      "iterations": 723140,
+      "real_time": 9.3513404181714736e+02,
+      "cpu_time": 9.3506651547418107e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1991/9",
+      "iterations": 659680,
+      "real_time": 1.0294412957811410e+03,
+      "cpu_time": 1.0294400315304433e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1990/10",
+      "iterations": 719950,
+      "real_time": 9.3730470726771148e+02,
+      "cpu_time": 9.3730536842835363e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1989/11",
+      "iterations": 548843,
+      "real_time": 1.2466237047729835e+03,
+      "cpu_time": 1.2465750679155947e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1988/12",
+      "iterations": 668041,
+      "real_time": 9.9286169560637120e+02,
+      "cpu_time": 9.9285223511730590e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1987/13",
+      "iterations": 469477,
+      "real_time": 1.4477796867601635e+03,
+      "cpu_time": 1.4473509884403181e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1986/14",
+      "iterations": 451322,
+      "real_time": 1.5100092838350208e+03,
+      "cpu_time": 1.5100039439690615e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1985/15",
+      "iterations": 460457,
+      "real_time": 1.4142349079191729e+03,
+      "cpu_time": 1.4133415280905797e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1984/16",
+      "iterations": 446062,
+      "real_time": 1.5696282041494399e+03,
+      "cpu_time": 1.5696113993121910e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1983/17",
+      "iterations": 480779,
+      "real_time": 1.4359439596968548e+03,
+      "cpu_time": 1.4353538736092944e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1982/18",
+      "iterations": 427774,
+      "real_time": 1.5742440447510555e+03,
+      "cpu_time": 1.5742448115126324e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1981/19",
+      "iterations": 420279,
+      "real_time": 1.6085956424136355e+03,
+      "cpu_time": 1.6085719248403843e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1980/20",
+      "iterations": 369270,
+      "real_time": 1.8332379749253098e+03,
+      "cpu_time": 1.8332385517372143e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1979/21",
+      "iterations": 324820,
+      "real_time": 2.1179533834079593e+03,
+      "cpu_time": 2.1178683578597515e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1978/22",
+      "iterations": 362713,
+      "real_time": 1.8994262074886494e+03,
+      "cpu_time": 1.8994246139509592e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1977/23",
+      "iterations": 379879,
+      "real_time": 1.8144579616255623e+03,
+      "cpu_time": 1.8144382816633743e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1976/24",
+      "iterations": 333785,
+      "real_time": 2.0066436029182514e+03,
+      "cpu_time": 2.0066060488038747e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1975/25",
+      "iterations": 288404,
+      "real_time": 2.3718782333185436e+03,
+      "cpu_time": 2.3718776438606633e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1974/26",
+      "iterations": 367489,
+      "real_time": 1.8988495710206930e+03,
+      "cpu_time": 1.8988513941913836e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1973/27",
+      "iterations": 315155,
+      "real_time": 2.2309951896777643e+03,
+      "cpu_time": 2.2309974457013063e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1972/28",
+      "iterations": 261409,
+      "real_time": 2.6219361383920755e+03,
+      "cpu_time": 2.6219372707137063e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1971/29",
+      "iterations": 304913,
+      "real_time": 2.2848773715826833e+03,
+      "cpu_time": 2.2848779815881885e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1970/30",
+      "iterations": 251851,
+      "real_time": 2.7427042179743748e+03,
+      "cpu_time": 2.7424072169655524e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1969/31",
+      "iterations": 262106,
+      "real_time": 2.6181647959234615e+03,
+      "cpu_time": 2.6176737655757488e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1968/32",
+      "iterations": 266166,
+      "real_time": 2.6117827859487174e+03,
+      "cpu_time": 2.6117873808074655e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1967/33",
+      "iterations": 252688,
+      "real_time": 2.7856160640947855e+03,
+      "cpu_time": 2.7856210029760332e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1966/34",
+      "iterations": 239793,
+      "real_time": 2.8793158390792432e+03,
+      "cpu_time": 2.8793000629709422e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1965/35",
+      "iterations": 264732,
+      "real_time": 2.5967199280900027e+03,
+      "cpu_time": 2.5967204569149471e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1964/36",
+      "iterations": 244013,
+      "real_time": 2.8860346170312732e+03,
+      "cpu_time": 2.8860347604430726e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1963/37",
+      "iterations": 224281,
+      "real_time": 2.9648256874271142e+03,
+      "cpu_time": 2.9648298340028446e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1962/38",
+      "iterations": 213394,
+      "real_time": 3.2450612622944927e+03,
+      "cpu_time": 3.2449787716618730e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1961/39",
+      "iterations": 217409,
+      "real_time": 3.1722020661272204e+03,
+      "cpu_time": 3.1719983993303058e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Boost/1960/40",
+      "iterations": 216687,
+      "real_time": 3.1984293935450528e+03,
+      "cpu_time": 3.1980829491386767e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/2000/0",
+      "iterations": 4390972,
+      "real_time": 1.5650840246670029e+02,
+      "cpu_time": 1.5650498340686525e+02,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1999/1",
+      "iterations": 241392,
+      "real_time": 2.8731641520757375e+03,
+      "cpu_time": 2.8726966925168313e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1998/2",
+      "iterations": 155765,
+      "real_time": 4.4407051905020717e+03,
+      "cpu_time": 4.4407087599909719e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1997/3",
+      "iterations": 133710,
+      "real_time": 5.1505568618317984e+03,
+      "cpu_time": 5.1504973450004381e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1996/4",
+      "iterations": 93255,
+      "real_time": 7.1219343305985622e+03,
+      "cpu_time": 7.1219452040103888e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1995/5",
+      "iterations": 91418,
+      "real_time": 7.5642534949364108e+03,
+      "cpu_time": 7.5620774902098210e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1994/6",
+      "iterations": 74911,
+      "real_time": 7.9364660464056351e+03,
+      "cpu_time": 7.9363778350308730e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1993/7",
+      "iterations": 87198,
+      "real_time": 7.6276955550115845e+03,
+      "cpu_time": 7.6276978829788241e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1992/8",
+      "iterations": 93555,
+      "real_time": 6.9454387258604638e+03,
+      "cpu_time": 6.9440222329111130e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1991/9",
+      "iterations": 87125,
+      "real_time": 7.8623169813294444e+03,
+      "cpu_time": 7.8621635581061300e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1990/10",
+      "iterations": 86053,
+      "real_time": 7.7787544885055140e+03,
+      "cpu_time": 7.7787642499391904e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1989/11",
+      "iterations": 82806,
+      "real_time": 8.0203555176638465e+03,
+      "cpu_time": 8.0203487669974702e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1988/12",
+      "iterations": 80652,
+      "real_time": 8.4046250682463124e+03,
+      "cpu_time": 8.4039701433318241e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1987/13",
+      "iterations": 83650,
+      "real_time": 7.8384503167774192e+03,
+      "cpu_time": 7.8384698147042682e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1986/14",
+      "iterations": 89489,
+      "real_time": 7.6083797785629595e+03,
+      "cpu_time": 7.6083876230597298e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1985/15",
+      "iterations": 91699,
+      "real_time": 7.4339257898197584e+03,
+      "cpu_time": 7.4320221594563873e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1984/16",
+      "iterations": 94737,
+      "real_time": 7.1037287754768804e+03,
+      "cpu_time": 7.1037292715622671e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1983/17",
+      "iterations": 82368,
+      "real_time": 8.0614461320132114e+03,
+      "cpu_time": 8.0614559052060849e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1982/18",
+      "iterations": 91756,
+      "real_time": 7.4388841274390415e+03,
+      "cpu_time": 7.4388922795239741e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1981/19",
+      "iterations": 82389,
+      "real_time": 8.0298008350472592e+03,
+      "cpu_time": 8.0296762917381711e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1980/20",
+      "iterations": 85184,
+      "real_time": 7.8810258381930171e+03,
+      "cpu_time": 7.8788035311795911e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1979/21",
+      "iterations": 82838,
+      "real_time": 8.0561966488974340e+03,
+      "cpu_time": 8.0562060889929999e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1978/22",
+      "iterations": 89128,
+      "real_time": 7.5344765618009151e+03,
+      "cpu_time": 7.5335809173323723e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1977/23",
+      "iterations": 87968,
+      "real_time": 7.4627875817968106e+03,
+      "cpu_time": 7.4626909785375683e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1976/24",
+      "iterations": 81915,
+      "real_time": 8.0931534518228018e+03,
+      "cpu_time": 8.0931575413537503e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1975/25",
+      "iterations": 81795,
+      "real_time": 8.1169709029078422e+03,
+      "cpu_time": 8.1169631395562210e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1974/26",
+      "iterations": 81015,
+      "real_time": 8.4609317287477024e+03,
+      "cpu_time": 8.4604455964944773e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1973/27",
+      "iterations": 77511,
+      "real_time": 8.2135655584503911e+03,
+      "cpu_time": 8.2134019687528107e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1972/28",
+      "iterations": 79716,
+      "real_time": 8.1443738772718507e+03,
+      "cpu_time": 8.1443248532290827e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1971/29",
+      "iterations": 79536,
+      "real_time": 8.5877006638542771e+03,
+      "cpu_time": 8.5859359283844260e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1970/30",
+      "iterations": 83929,
+      "real_time": 7.9653006707882269e+03,
+      "cpu_time": 7.9653040069584431e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1969/31",
+      "iterations": 82831,
+      "real_time": 8.0473416595601539e+03,
+      "cpu_time": 8.0473494223176467e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1968/32",
+      "iterations": 79664,
+      "real_time": 8.3030424658280044e+03,
+      "cpu_time": 8.3030478007631045e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1967/33",
+      "iterations": 81815,
+      "real_time": 8.1818016745018158e+03,
+      "cpu_time": 8.1816537309784126e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1966/34",
+      "iterations": 84592,
+      "real_time": 8.0357508156453168e+03,
+      "cpu_time": 8.0354879894078185e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1965/35",
+      "iterations": 77116,
+      "real_time": 8.6050001815477845e+03,
+      "cpu_time": 8.6049976658540745e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1964/36",
+      "iterations": 82903,
+      "real_time": 8.2319833299395632e+03,
+      "cpu_time": 8.2307636635586314e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1963/37",
+      "iterations": 79458,
+      "real_time": 8.5911690201412312e+03,
+      "cpu_time": 8.5911676609027909e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1962/38",
+      "iterations": 77188,
+      "real_time": 8.9135692465418379e+03,
+      "cpu_time": 8.9135746489092380e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1961/39",
+      "iterations": 84079,
+      "real_time": 8.1170161990852748e+03,
+      "cpu_time": 8.1170208970134336e+03,
+      "time_unit": "ns"
+    },
+    {
+      "name": "Folly/1960/40",
+      "iterations": 82460,
+      "real_time": 8.2942533591695719e+03,
+      "cpu_time": 8.2939485811302820e+03,
+      "time_unit": "ns"
+    }
+  ]
+}
