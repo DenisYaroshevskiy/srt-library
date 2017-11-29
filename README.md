@@ -4,4 +4,5 @@ Was created for a talk on the subject of implementing
 flat_set::insert(first, last);
 
 library: library: https://github.com/DenisYaroshevskiy/srt-library/blob/master/srt.h
-presentation:
+slides (in Russian): https://github.com/DenisYaroshevskiy/srt-library/blob/master/presentation_rus.pdf
+
