@@ -393,7 +393,7 @@ class flat_set {
     impl_t() = default;
 
     template <typename... Args>
-    impl_t(value_compare comp, Args... args)
+    impl_t(value_compare comp, Args&&... args)
         : value_compare(comp), body_{std::forward<Args>(args)...} {};
 
     underlying_type body_;
