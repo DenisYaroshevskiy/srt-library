@@ -360,6 +360,86 @@ I lower_bound_hinted(I f, I hint, I l, V v) {
   return lower_bound_hinted(f, hint, l, v, less{});
 }
 
+// algorithms: memory management. ---------------------------------------------
+
+template <typename I,
+
+template <typename Alloc, typename I>
+void destroy_backward(I f, I l, Alloc& alloc) {
+  while (f != l) {
+    std::allocator_traits<Alloc>::destroy(alloc, &*--l);
+  }
+}
+
+// vector ---------------------------------------------------------------------
+// std::vector's api is not rich enough to implement flat_sets on top of it
+// in the most efficient way - we have to have access to the capacity.
+// This implementation of vector supports that.
+//
+// Note: we do not support the vector<bool> specialization. flat_set<bool>.
+
+template <typename T, typename Alloc = std::allocator<T>>
+// requires SemiRegular<T> && Allocator<Alloc>
+class vector {
+  using alloc_traits = std::allocator_traits<Alloc>;
+ public:
+  using value_type = T;
+  using allocator_type = Alloc;
+  using reference = value_type&;
+  using const_reference = const value_type&;
+  using size_type = typename alloc_traits::size_type;
+  using difference_type = typename alloc_traits::difference_type;
+  using pointer = typename alloc_traits::pointer;
+  using const_pointer = typename alloc_traits::const_pointer;
+  using iterator = pointer;
+  using const_iterator = const_pointer;
+
+ private:
+  struct impl_t : allocator_type
+  {
+    impl_t() = default;
+    impl_t(const allocator_type& a) : allocator_type(a) {}
+    pointer begin_ = nullptr;
+    pointer end_ = nullptr;
+    pointer buffer_end_ = nullptr;
+  } impl_;
+
+  allocator_type& alloc() noexcept { return impl_; }
+  const allocator_type& alloc() const noexcept { return impl_; }
+
+ public:
+
+  allocator_type get_allocator() const noexcept {
+    return alloc();
+  }
+
+  iterator begin() noexcept { return impl_.begin_; }
+  const_iterator begin() const noexcept { return impl_.begin_; }
+  const_iterator cbegin() const noexcept { return begin(); }
+
+  iterator end() noexcept { return impl_.end_; }
+  const_iterator end() const noexcept { return impl_.end_; }
+  const_iterator cend() const noexcept { return end(); }
+
+  iterator buffer_end() noexcept { return impl_.buffer_end_; }
+  const_iterator buffer_end() const noexcept { return impl_.buffer_end_;}
+  const_iterator cbuffer_end() const noexcept { return buffer_end();}
+
+  size_type capacity() const noexcept { return buffer_end() - begin(); }
+  void clear() noexcept {
+    destroy_backward(begin(), end(), alloc());
+    impl_.end_ = begin();
+  }
+
+  vector() noexcept(
+      std::is_nothrow_default_constructible<allocator_type>::value) {}
+  vector(const allocator_type& a) : impl_(a) {}
+  ~vector() {
+    clear();
+    alloc_traits::deallocate(alloc(), begin(), capacity());
+  }
+};
+
 
 // flat_set -------------------------------------------------------------------
 

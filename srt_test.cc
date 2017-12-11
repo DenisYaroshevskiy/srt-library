@@ -66,9 +66,11 @@ struct move_only_int {
   }
 };
 
+using int_vec = srt::vector<int>;
+
 using int_set = srt::flat_set<int>;
 using move_only_set = srt::flat_set<move_only_int>;
-using int_vec = int_set::underlying_type;
+using std_int_vec = int_set::underlying_type;
 using strange_cmp_set = srt::flat_set<int, strange_cmp>;
 using reverse_set = srt::flat_set<int, std::greater<int>>;
 
@@ -84,7 +86,27 @@ struct template_constructor {
 
 }  // namespace
 
-TEST_CASE("set_types", "[flat_cainers, flat_set]") {
+// vector -----------------------------------------------------------------
+
+TEST_CASE("vector_types", "[vector]") {
+  static_assert((std::is_same<int, int_vec::value_type>::value), "");
+  static_assert((std::is_same<int&, int_vec::reference>::value), "");
+  static_assert((std::is_same<const int&, int_vec::const_reference>::value),
+                "");
+  static_assert((std::is_same<int*, int_vec::pointer>::value), "");
+  static_assert((std::is_same<const int*, int_vec::const_pointer>::value), "");
+  static_assert((std::is_same<int*, int_vec::iterator>::value), "");
+  static_assert((std::is_same<const int*, int_vec::const_iterator>::value), "");
+}
+
+TEST_CASE("vector_default_constructor", "vector") {
+  int_vec v;
+}
+
+
+// flat_set ---------------------------------------------------------------
+
+TEST_CASE("flat_set_types", "[flat_cainers, flat_set]") {
   // These are guaranteed to be portable.
   static_assert((std::is_same<int, int_set::key_type>::value), "");
   static_assert((std::is_same<int, int_set::value_type>::value), "");
@@ -98,7 +120,7 @@ TEST_CASE("set_types", "[flat_cainers, flat_set]") {
   static_assert(sizeof(int_set) == sizeof(int_set::underlying_type), "");
 }
 
-TEST_CASE("incomplete_type", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_incomplete_type", "[flat_cainers, flat_set]") {
   struct t {
     using dependent = srt::flat_set<t>;
     int data;
@@ -112,53 +134,53 @@ TEST_CASE("incomplete_type", "[flat_cainers, flat_set]") {
   t x;
 }
 
-TEST_CASE("default_constructor", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_default_constructor", "[flat_cainers, flat_set]") {
   {
     const int_set c;
-    REQUIRE(c.body() == int_vec());
+    REQUIRE(c.body() == std_int_vec());
   }
   {
     const strange_cmp_set c(strange_cmp(0));
-    REQUIRE(c.body() == int_vec());
+    REQUIRE(c.body() == std_int_vec());
   }
 }
 
-TEST_CASE("range_constructor", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_range_constructor", "[flat_cainers, flat_set]") {
   {
     const int_set c(int_set({1, 1, 2, 2, 1, 2, 3, 3, 3}));
-    const int_vec expected = {1, 2, 3};
+    const std_int_vec expected = {1, 2, 3};
     REQUIRE(expected == c.body());
   }
   {
     const int_set c{1, 1, 2, 2, 1, 2, 3, 3, 3};
-    const int_vec expected = {1, 2, 3};
+    const std_int_vec expected = {1, 2, 3};
     REQUIRE(expected == c.body());
   }
   {
-    const int_vec input{1, 1, 2, 2, 1, 2, 3, 3, 3};
+    const std_int_vec input{1, 1, 2, 2, 1, 2, 3, 3, 3};
     const int_set c(input.begin(), input.end());
-    const int_vec expected = {1, 2, 3};
+    const std_int_vec expected = {1, 2, 3};
     REQUIRE(expected == c.body());
   }
   {
-    int_vec input{1, 1, 2, 2, 1, 2, 3, 3, 3};
+    std_int_vec input{1, 1, 2, 2, 1, 2, 3, 3, 3};
     const int_set c(std::move(input));
-    const int_vec expected = {1, 2, 3};
+    const std_int_vec expected = {1, 2, 3};
     REQUIRE(expected == c.body());
   }
 }
 
-TEST_CASE("copy_constructor", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_copy_constructor", "[flat_cainers, flat_set]") {
   const int_set original{1, 2, 3, 4};
   auto copy(original);
-  int_vec expected{1, 2, 3, 4};
+  std_int_vec expected{1, 2, 3, 4};
 
   REQUIRE(copy == original);
   REQUIRE(expected == original.body());
   REQUIRE(expected == copy.body());
 }
 
-TEST_CASE("move_constructor", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_move_constructor", "[flat_cainers, flat_set]") {
   int input_range[] = {1, 2, 3, 4};
 
   move_only_set original(std::begin(input_range), std::end(input_range));
@@ -170,19 +192,19 @@ TEST_CASE("move_constructor", "[flat_cainers, flat_set]") {
   REQUIRE(1U == moved.count(4));
 }
 
-TEST_CASE("copy_assignment", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_copy_assignment", "[flat_cainers, flat_set]") {
   const int_set original{1, 2, 3, 4};
   int_set copy;
   copy = original;
 
-  int_vec expected{1, 2, 3, 4};
+  std_int_vec expected{1, 2, 3, 4};
 
   REQUIRE(copy == original);
   REQUIRE(expected == original.body());
   REQUIRE(expected == copy.body());
 }
 
-TEST_CASE("move_assignment", "[flat_cainers, flat_set") {
+TEST_CASE("flat_set_move_assignment", "[flat_cainers, flat_set") {
   int input_range[] = {1, 2, 3, 4};
 
   move_only_set original(std::begin(input_range), std::end(input_range));
@@ -195,29 +217,29 @@ TEST_CASE("move_assignment", "[flat_cainers, flat_set") {
   REQUIRE(1U == moved.count(4));
 }
 
-TEST_CASE("initializer_list_assignment", "[flat_cainers, flat_set") {
+TEST_CASE("flat_set_initializer_list_assignment", "[flat_cainers, flat_set") {
   int_set c = {0};
   c = {1, 2, 3, 4};
 
-  int_vec expected = {1, 2, 3, 4};
+  std_int_vec expected = {1, 2, 3, 4};
 
   REQUIRE(expected == c.body());
 }
 
-TEST_CASE("reserve", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_reserve", "[flat_cainers, flat_set]") {
   int_set c = {1, 2, 3};
   c.reserve(5);
   REQUIRE(5U <= c.capacity());
 }
 
-TEST_CASE("capacity", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_capacity", "[flat_cainers, flat_set]") {
   int_set c = {1, 2, 3};
   REQUIRE(c.size() <= c.capacity());
   c.reserve(5);
   REQUIRE(c.size() <= c.capacity());
 }
 
-TEST_CASE("shrink_to_fit", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_shrink_to_fit", "[flat_cainers, flat_set]") {
   int_set c = {1, 2, 3};
 
   auto capacity_before = c.capacity();
@@ -225,13 +247,13 @@ TEST_CASE("shrink_to_fit", "[flat_cainers, flat_set]") {
   REQUIRE(c.capacity() <= capacity_before);
 }
 
-TEST_CASE("clear", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_clear", "[flat_cainers, flat_set]") {
   int_set c{1, 2, 3, 4, 5, 6, 7, 8};
   c.clear();
-  REQUIRE(c.body() == int_vec());
+  REQUIRE(c.body() == std_int_vec());
 }
 
-TEST_CASE("size", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_size", "[flat_cainers, flat_set]") {
   int_set c;
 
   REQUIRE(0U == c.size());
@@ -249,7 +271,7 @@ TEST_CASE("size", "[flat_cainers, flat_set]") {
   REQUIRE(0U == c.size());
 }
 
-TEST_CASE("empty", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_empty", "[flat_cainers, flat_set]") {
   int_set c;
 
   REQUIRE(c.empty());
@@ -259,7 +281,7 @@ TEST_CASE("empty", "[flat_cainers, flat_set]") {
   REQUIRE(c.empty());
 }
 
-TEST_CASE("iterators", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_iterators", "[flat_cainers, flat_set]") {
   int_set c{1, 2, 3, 4, 5, 6, 7, 8};
 
   auto size = c.size();
@@ -289,7 +311,7 @@ TEST_CASE("iterators", "[flat_cainers, flat_set]") {
   }
 }
 
-TEST_CASE("insert_emplace_v", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_insert_emplace_v", "[flat_cainers, flat_set]") {
   std::mt19937 g;
   std::uniform_int_distribution<> dis(1, 1000);
 
@@ -315,7 +337,7 @@ TEST_CASE("insert_emplace_v", "[flat_cainers, flat_set]") {
   }
 }
 
-TEST_CASE("insert_emplace_hint_v", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_insert_emplace_hint_v", "[flat_cainers, flat_set]") {
   std::mt19937 g;
   std::uniform_int_distribution<> dis(1, 1000);
 
@@ -345,23 +367,23 @@ TEST_CASE("insert_emplace_hint_v", "[flat_cainers, flat_set]") {
   }
 }
 
-TEST_CASE("insert_f_l", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_insert_f_l", "[flat_cainers, flat_set]") {
   std::mt19937 g;
   std::uniform_int_distribution<> dis(1, 1000);
   auto rand_int = [&] { return dis(g); };
 
   for (size_t c_size = 0; c_size < 100; ++c_size) {
     for (size_t range_size = 0; range_size < 100; ++range_size) {
-      int_vec already_in(c_size);
+      std_int_vec already_in(c_size);
       std::generate(already_in.begin(), already_in.end(), rand_int);
 
-      int_vec new_elements(range_size);
+      std_int_vec new_elements(range_size);
       std::generate(new_elements.begin(), new_elements.end(), rand_int);
 
       int_set actual(already_in);
       actual.insert(new_elements.begin(), new_elements.end());
 
-      int_vec expected = already_in;
+      std_int_vec expected = already_in;
       expected.insert(expected.end(), new_elements.begin(), new_elements.end());
       expected.erase(srt::sort_and_unique(expected.begin(), expected.end()),
                      expected.end());
@@ -371,10 +393,10 @@ TEST_CASE("insert_f_l", "[flat_cainers, flat_set]") {
   }
 }
 
-TEST_CASE("erase_pos", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_erase_pos", "[flat_cainers, flat_set]") {
   {
     int_set c{1, 2, 3, 4, 5, 6, 7, 8};
-    int_vec expected;
+    std_int_vec expected;
 
     int_set::iterator it = c.erase(std::next(c.cbegin(), 3));
     REQUIRE(std::next(c.cbegin(), 3) == it);
@@ -428,13 +450,13 @@ TEST_CASE("erase_pos", "[flat_cainers, flat_set]") {
   }
 }
 
-TEST_CASE("erase_range", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_erase_range", "[flat_cainers, flat_set]") {
   int_set c{1, 2, 3, 4, 5, 6, 7, 8};
 
   int_set::iterator it =
       c.erase(std::next(c.cbegin(), 5), std::next(c.cbegin(), 5));
   REQUIRE(std::next(c.begin(), 5) == it);
-  int_vec expected = {1, 2, 3, 4, 5, 6, 7, 8};
+  std_int_vec expected = {1, 2, 3, 4, 5, 6, 7, 8};
   REQUIRE(expected == c.body());
 
   it = c.erase(std::next(c.cbegin(), 3), std::next(c.cbegin(), 4));
@@ -457,11 +479,11 @@ TEST_CASE("erase_range", "[flat_cainers, flat_set]") {
   REQUIRE(c.end() == it);
 }
 
-TEST_CASE("erase_v", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_erase_v", "[flat_cainers, flat_set]") {
   int_set c{1, 2, 3, 4, 5, 6, 7, 8};
 
   REQUIRE(0U == c.erase(9));
-  int_vec expected = {1, 2, 3, 4, 5, 6, 7, 8};
+  std_int_vec expected = {1, 2, 3, 4, 5, 6, 7, 8};
   REQUIRE(expected == c.body());
 
   REQUIRE(1U == c.erase(4));
@@ -497,7 +519,7 @@ TEST_CASE("erase_v", "[flat_cainers, flat_set]") {
   REQUIRE(expected == c.body());
 }
 
-TEST_CASE("key_value_compare", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_key_value_compare", "[flat_cainers, flat_set]") {
   reverse_set c{1, 2, 3, 4, 5};
 
   REQUIRE(std::is_sorted(c.begin(), c.end(), c.key_comp()));
@@ -511,7 +533,7 @@ TEST_CASE("key_value_compare", "[flat_cainers, flat_set]") {
   REQUIRE(std::is_sorted(c.begin(), c.end(), c.value_comp()));
 }
 
-TEST_CASE("count", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_count", "[flat_cainers, flat_set]") {
   const int_set c{5, 6, 7, 8, 9, 10, 11, 12};
 
   REQUIRE(1U == c.count(5));
@@ -525,7 +547,7 @@ TEST_CASE("count", "[flat_cainers, flat_set]") {
   REQUIRE(0U == c.count(4));
 }
 
-TEST_CASE("find", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_find", "[flat_cainers, flat_set]") {
   {
     int_set c{5, 6, 7, 8, 9, 10, 11, 12};
 
@@ -556,7 +578,7 @@ TEST_CASE("find", "[flat_cainers, flat_set]") {
   }
 }
 
-TEST_CASE("equal_range", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_equal_range", "[flat_cainers, flat_set]") {
   {
     int_set c({5, 7, 9, 11, 13, 15, 17, 19});
 
@@ -670,7 +692,7 @@ TEST_CASE("equal_range", "[flat_cainers, flat_set]") {
   }
 }
 
-TEST_CASE("lower_bound", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_lower_bound", "[flat_cainers, flat_set]") {
   {
     int_set c{5, 7, 9, 11, 13, 15, 17, 19};
 
@@ -715,7 +737,7 @@ TEST_CASE("lower_bound", "[flat_cainers, flat_set]") {
   }
 }
 
-TEST_CASE("upper_bound", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_upper_bound", "[flat_cainers, flat_set]") {
   {
     int_set c{5, 7, 9, 11, 13, 15, 17, 19};
 
@@ -760,12 +782,12 @@ TEST_CASE("upper_bound", "[flat_cainers, flat_set]") {
   }
 }
 
-TEST_CASE("swap", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_swap", "[flat_cainers, flat_set]") {
   int_set x = {1, 2, 3};
   int_set y = {4};
 
   swap(x, y);
-  int_vec expected = {4};
+  std_int_vec expected = {4};
   REQUIRE(x.body() == expected);
   expected = {1, 2, 3};
   REQUIRE(y.body() == expected);
@@ -777,7 +799,7 @@ TEST_CASE("swap", "[flat_cainers, flat_set]") {
   REQUIRE(y.body() == expected);
 }
 
-TEST_CASE("ordering", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_ordering", "[flat_cainers, flat_set]") {
   // Provided comparator does not participate in ordering.
   reverse_set biggest = {3};
   reverse_set smallest = {1};
@@ -793,14 +815,14 @@ TEST_CASE("ordering", "[flat_cainers, flat_set]") {
   REQUIRE(biggest >= biggest);
 }
 
-TEST_CASE("erase_if", "[flat_cainers, flat_set]") {
+TEST_CASE("flat_set_erase_if", "[flat_cainers, flat_set]") {
   int_set x;
   erase_if(x, [](int) { return false; });
   REQUIRE(x.empty());
 
   x = {1, 2, 3};
   erase_if(x, [](int e) { return !(e & 1); });
-  int_vec expected = {1, 3};
+  std_int_vec expected = {1, 3};
   REQUIRE(expected == x.body());
 
   x = {1, 2, 3, 4};
