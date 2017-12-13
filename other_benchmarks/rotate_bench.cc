@@ -1,26 +1,17 @@
 #include <algorithm>
-#include <type_traits>
+#include <numeric>
 
 #include "rotates.h"
 #include "benchmark/benchmark.h"
 
-class int_generator {
-public:
-  using value_type = int;
-
-  int operator()() { return value++; }
-private:
-  int value = 0;
-};
-
-using value_generator = int_generator;
+using value_type = int;
 
 constexpr size_t kProblemSize = 100;
-constexpr size_t kStep = 1;
+constexpr size_t kStep = 40;
 
 auto generate_input() {
-  std::vector<value_generator::value_type> vec(kProblemSize);
-  std::generate(vec.begin(), vec.end(), value_generator());
+  std::vector<value_type> vec(kProblemSize);
+  std::iota(vec.begin(), vec.end(), 0);
   return vec;
 }
 

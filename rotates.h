@@ -82,11 +82,16 @@ class temporary_buffer {
     return std::make_tuple(l, res_begin, res_end);
   }
 
-  ~temporary_buffer() {
+  void clear() {
+    count_ += end_ - buffer_;
     while (buffer_ != end_) {
       end_->~T();
       --end_;
     }
+  }
+
+  ~temporary_buffer() {
+    clear();
     std::return_temporary_buffer(buffer_);
   }
 
@@ -102,10 +107,10 @@ private:
 namespace v1 {
 
 template <typename I>
-I rotate_buffered_lhs(I f,
-                      I m,
-                      I l,
-                      detail::temporary_buffer<detail::ValueType<I>>& buf) {
+using buffer = detail::temporary_buffer<detail::ValueType<I>>;
+
+template <typename I>
+I rotate_buffered_lhs(I f, I m, I l, buffer<I>& buf) {
   detail::ValueType<I>* buf_f;
   detail::ValueType<I>* buf_l;
 
@@ -117,10 +122,7 @@ I rotate_buffered_lhs(I f,
 }
 
 template <typename I>
-I rotate_buffered_rhs(I f,
-                      I m,
-                      I l,
-                      detail::temporary_buffer<detail::ValueType<I>>& buf) {
+I rotate_buffered_rhs(I f, I m, I l, buffer<I>& buf) {
   detail::ValueType<I>* buf_f;
   detail::ValueType<I>* buf_l;
 
@@ -133,24 +135,27 @@ I rotate_buffered_rhs(I f,
 
 template <typename I>
 // requires RandomAccessIterator<I>
-I rotate(I f, I m, I l) {
+I rotate_with_enough_space(I f, I m, I l, buffer<I>& buf) {
   detail::DifferenceType<I> lhs_size = std::distance(f, m);
   detail::DifferenceType<I> rhs_size = std::distance(m, l);
-  using temp_buf = detail::temporary_buffer<detail::ValueType<I>>;
 
   if (lhs_size <= rhs_size) {
-     temp_buf buf(lhs_size);
     if (buf.capacity() >= lhs_size) {
       return rotate_buffered_lhs(f, m, l, buf);
     }
   } else {
-    temp_buf buf(rhs_size);
     if (buf.capacity() >= rhs_size) {
       return rotate_buffered_rhs(f, m, l, buf);
     }
   }
 
   return std::rotate(f, m, l);
+}
+
+template <typename I>
+I rotate(I f, I m, I l) {
+  buffer<I> buf(std::min(std::distance(f, m), std::distance(m, l)));
+  return rotate_with_enough_space(f, m, l, buf);
 }
 
 }  // namespace v1

@@ -316,6 +316,25 @@ I sort_and_unique(I f, I l) {
   return sort_and_unique(f, l, less{});
 }
 
+template <typename I, typename O, typename P>
+O copy_until_adjacent_check(I f, I l, O o, P p) {
+  if (f == l) return o;
+
+  I next = f;
+  ++next;
+  for (; next != l; ++next, ++f) {
+    if (!p(*f, *next)) break;
+    *o = *f; ++o;
+  }
+  *o = *f; ++o;
+  return o;
+}
+
+template <typename I, typename O>
+O copy_until_sorted(I f, I l, O o) {
+  return copy_until_adjacent_check(f, l, o, less{});
+}
+
 template <typename I, typename P>
 // requires ForwardIterator<I> && UnaryPredicate<P, ValueType<I>>
 I partition_point_biased(I f, I l, P p) {
@@ -361,8 +380,6 @@ I lower_bound_hinted(I f, I hint, I l, V v) {
 }
 
 // algorithms: memory management. ---------------------------------------------
-
-template <typename I,
 
 template <typename Alloc, typename I>
 void destroy_backward(I f, I l, Alloc& alloc) {

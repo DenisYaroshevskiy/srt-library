@@ -13,6 +13,25 @@
 
 // algorithms -----------------------------------------------------------------
 
+TEST_CASE("copy_until_sorted", "[algorithms]") {
+  constexpr size_t kSize = 10;
+  std::vector<int> vec(kSize);
+  std::iota(vec.begin(), vec.end(), 1);
+
+  srt::copy_until_sorted(vec.begin(), vec.begin(), vec.begin());
+
+  for (size_t size = kSize; size > 0; --size) {
+    std::fill(vec.begin() + size, vec.end(), 0);
+
+    std::vector<int> actual;
+    srt::copy_until_sorted(vec.begin(), vec.end(), std::back_inserter(actual));
+
+    std::vector<int> expected(size);
+    std::iota(expected.begin(), expected.end(), 1);
+    REQUIRE(expected == actual);
+  }
+}
+
 TEST_CASE("lower_bound_biased", "[algorithms]") {
   std::vector<int> vec(1000);
   std::iota(vec.begin(), vec.end(), 1);
