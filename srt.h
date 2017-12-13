@@ -1,4 +1,9 @@
-#pragma once
+// ---------------------------------------------------------------------------
+// srt library ---------------------------------------------------------------
+// ---------------------------------------------------------------------------
+
+#ifndef SRT_LIBRARY_H_
+#define SRT_LIBRARY_H_
 
 #include <algorithm>
 #include <cassert>
@@ -9,6 +14,20 @@
 #include <vector>
 
 namespace srt {
+
+namespace detail {
+
+template <typename...>
+using void_t = void;
+
+template <typename, typename = void>
+struct has_is_transparent_member : std::false_type {};
+
+template <typename T>
+struct has_is_transparent_member<T, void_t<typename T::is_transparent>>
+    : std::true_type {};
+
+}  // namespace detail
 
 // meta functions -------------------------------------------------------------
 
@@ -24,17 +43,141 @@ using Reference = typename std::iterator_traits<I>::reference;
 template <typename I>
 using DifferenceType = typename std::iterator_traits<I>::difference_type;
 
-namespace detail {
+template <typename I>
+using IteratorCategory = typename std::iterator_traits<I>::iterator_category;
 
-template <typename...>
-using void_t = void;
+// concepts ------------------------------------------------------------------
 
-template <typename, typename = void>
-struct has_is_transparent_member : std::false_type {};
+template <typename I>
+constexpr bool RandomAccessIterator() {
+  return std::is_same<IteratorCategory<I>,
+                      std::random_access_iterator_tag>::value;
+}
 
 template <typename T>
-struct has_is_transparent_member<T, void_t<typename T::is_transparent>>
-    : std::true_type {};
+constexpr bool TransparentComparator() {
+  return detail::has_is_transparent_member<T>::value;
+}
+
+// predeclarations ------------------------------------------------------------
+
+struct less;
+
+template <typename I>
+class temporary_buffer;
+
+template <typename I>
+using ibuffer = temporary_buffer<ValueType<I>>;
+
+template <typename I, typename O>
+// requires InputIterator<I> && OutputIterator<O>
+O copy(I f, I l, O o);
+
+template <typename I, typename O, typename P>
+// requires ForwardIterator<I> && OutputIterator<O> ||
+//          InputIterator<I> && ForwardIterator<O>
+O copy_until_adjacent_check(I f, I l, O o, P p);
+
+template <typename I, typename O>
+// requires ForwardIterator<I> && OutputIterator<O> ||
+//          InputIterator<I> && ForwardIterator<O>
+O copy_until_sorted(I f, I l, O o);
+
+template <typename I, typename O>
+// requires InputIterator<I> && OutputIterator<O>
+O uninitialized_copy(I f, I l, O o);
+
+template <typename I>
+// requires RandomAccessIterator<I>
+I middle(I f, I l);
+
+template <typename I, typename Compare>
+// requires RandomAccessIterator<I> && StrictWeakOrdering<Compare<ValueType<I>>
+I sort_and_unique(I f, I l, Compare comp);
+
+template <typename I1, typename I2, typename O, typename Compare>
+// requires ForwardIterator<I> && StrictWeakOrdering<Compare<ValueType<I>>
+O set_union_linear(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp);
+
+template <typename I1, typename I2, typename O, typename Compare>
+// requires ForwardIterator<I>
+O set_union_linear(I1 f1, I1 l1, I2 f2, I2 l2, O o);
+
+template <typename I1, typename I2, typename O, typename Compare>
+// requires RandomAccessIterator<I> && StrictWeakOrdering<Compare<ValueType<I>>
+O set_union_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp);
+
+template <typename I1, typename I2, typename O, typename Compare>
+// requires RandomAccessIterator<I>
+O set_union_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o);
+
+template <typename I, typename P>
+// requires RandomAccessIterator<I> && UnaryPredicate<P, ValueType<I>>
+I partition_point_biased(I f, I l, P p);
+
+template <typename I, typename P>
+// requires RandomAccessIterator<I> && UnaryPredicate<P, ValueType<I>>
+I partition_point_hinted(I f, I hint, I l, P p);
+
+template <typename I, typename V, typename Compare>
+// requires RandomAccessIterator<I> && StrictWeakOrdering<Compare<ValueType<I>>
+I lower_bound_biased(I f, I l, V v, Compare comp);
+
+template <typename I, typename V>
+// requires RandomAccessIterator<I>
+I lower_bound_biased(I f, I l, V v);
+
+template <typename I, typename V, typename Compare>
+// requires RandomAccessIterator<I> && StrictWeakOrdering<Compare<ValueType<I>>
+I lower_bound_hinted(I f, I hint, I l, V v, Compare comp);
+
+template <typename I, typename V>
+// requires RandomAccessIterator<I>
+I lower_bound_hinted(I f, I hint, I l, V v);
+
+template <typename I>
+// requires RandomAccessIterator<I>
+I rotate_buffered(I f, I m, I l, ibuffer<I>& buf);
+
+template <typename I>
+// requires RandomAccessIterator<I>
+I rotate_buffered(I f, I m, I l);
+
+template <typename I, typename Compare>
+// requires RandomAccessIterator<I> && StrictWeakOrdering<Compare<ValueType<I>>
+void inplace_merge_rotating_middles(I f, I m, I l, Compare comp);
+
+template <typename I, typename Compare>
+// requires RandomAccessIterator<I>
+void inplace_merge_rotating_middles(I f, I m, I l);
+
+template <typename I, typename Compare>
+// requires RandomAccessIterator<I> && StrictWeakOrdering<Compare<ValueType<I>>
+void inplace_merge_rotating_middles_buffered(I f,
+                                             I m,
+                                             I l,
+                                             Compare comp,
+                                             srt::ibuffer<I>& buf);
+
+template <typename I>
+// requires RandomAccessIterator<I>
+void inplace_merge_rotating_middles_buffered(I f,
+                                             I m,
+                                             I l,
+                                             srt::ibuffer<I>& buf);
+
+template <typename I, typename Compare>
+// requires RandomAccessIterator<I> && StrictWeakOrdering<Compare<ValueType<I>>
+void inplace_merge_rotating_middles_buffered(I f, I m, I l, Compare comp);
+
+
+template <typename I>
+// requires RandomAccessIterator<I>
+void inplace_merge_rotating_middles_buffered(I f, I m, I l);
+
+// implementation -------------------------------------------------------------
+
+namespace detail {
 
 template <typename F>
 // requires Predicate<F>
@@ -127,11 +270,6 @@ O do_copy(I f, I l, O o) {
   return O(call_copy<is_backward>(f, l, o));
 }
 
-template <typename I, typename O>
-O copy(I f, I l, O o) {
-  return do_copy<false>(f, l, o);
-}
-
 // clang-format off
 template <typename ContainerValueType, typename InsertedType>
 using insert_should_be_enabled =
@@ -158,15 +296,6 @@ I partition_point_biased_no_checks(I f, P p) {
       f = ++test;
     }
   }
-}
-
-template <typename I>
-I middle(I f, I l) {
-  static_assert(
-    std::numeric_limits<DifferenceType<I>>::max() <=
-    std::numeric_limits<size_t>::max(),
-    "iterators difference type is too big");
-  return std::next(f, static_cast<size_t>(std::distance(f, l)) / 2);
 }
 
 template <typename I, typename P>
@@ -207,7 +336,7 @@ std::tuple<I1, I2, O> set_union_intersecting_parts(I1 f1,
 
     I1 segment_end =
         find_boundary(f1, l1, [&](Reference<I1> x) { return comp(x, *f2); });
-    o = detail::copy(f1, segment_end, o);
+    o = srt::copy(f1, segment_end, o);
     f1 = segment_end;
   }
 
@@ -227,7 +356,7 @@ std::pair<I1, I1> set_union_into_tail(I1 buf, I1 f1, I1 l1, I2 f2, I2 l2, P p) {
                                    f2, l2,                       //
                                    buf, p);                      //
 
-  return {detail::copy(f2, l2, buf), move_f1.base()};
+  return {srt::copy(f2, l2, buf), move_f1.base()};
 }
 
 template <typename C, typename I, typename P>
@@ -244,7 +373,7 @@ void insert_first_last_impl(C& c, I f, I l, P p) {
   Iterator<C> l_in = c.end();
   Iterator<C> buf = f_in;
 
-  detail::copy(f, l, f_in);
+  srt::copy(f, l, f_in);
   l_in = sort_and_unique(f_in, l_in, p);
 
   using reverse_it = typename C::reverse_iterator;
@@ -263,15 +392,141 @@ void insert_first_last_impl(C& c, I f, I l, P p) {
   c.erase(c.begin() + remaining_buf.first, c.begin() + remaining_buf.second);
 }
 
+template <typename I, typename O>
+constexpr bool enable_trivial_copy() {
+   return std::is_trivially_copy_constructible<ValueType<O>>::value &&
+          std::is_same<typename std::remove_const<ValueType<I>>::type, ValueType<O>>::value;
+}
+
+template <typename I, typename O>
+typename std::enable_if<!detail::enable_trivial_copy<I, O>(), O>::type
+do_uninitialized_copy(I f, I l, O o)
+{
+    using value_type = typename std::iterator_traits<I>::value_type;
+    O s = o;
+    try
+    {
+        for (; f != l; ++f, (void) ++o)
+            ::new (static_cast<void*>(std::addressof(*o))) value_type(*f);
+    }
+    catch (...)
+    {
+        for (; s != o; ++s)
+            s->~value_type();
+        throw;
+    }
+    return o;
+}
+
+template <typename I, typename O>
+typename std::enable_if<detail::enable_trivial_copy<I, O>(), O>::type
+do_uninitialized_copy(I f, I l, O o) {
+  return srt::copy(f, l, o);
+}
+
+template <typename I, typename O, typename P>
+O do_copy_until_adjacent_check(I f, I l, O o, P p, std::output_iterator_tag) {
+  if (f == l) return o;
+
+  I next = f;
+  ++next;
+  for (; next != l; ++next, ++f) {
+    if (!p(*f, *next)) break;
+    *o = *f; ++o;
+  }
+
+  *o = *f; ++o;
+  return o;
+}
+
+template <typename I, typename O, typename P>
+O do_copy_until_adjacent_check(I f, I l, O o, P p, std::forward_iterator_tag) {
+  if (f == l) return o;
+
+  I next = f;
+  ++next;
+  for (; next != l; ++next, ++f) {
+    if (!p(*f, *next)) break;
+    *o = *f; ++o;
+  }
+  *o = *f; ++o;
+  return o;
+}
+
+template <typename I>
+I rotate_buffered_lhs(I f, I m, I l, srt::ibuffer<I>& buf) {
+  srt::ValueType<I>* buf_f;
+  srt::ValueType<I>* buf_l;
+
+  std::tie(std::ignore, buf_f, buf_l) =
+      buf.copy(std::move_iterator<I>(f), std::move_iterator<I>(m));
+  I res = std::move(m, l, f);
+  std::move(buf_f, buf_l, res);
+  return res;
+}
+
+template <typename I>
+I rotate_buffered_rhs(I f, I m, I l, srt::ibuffer<I>& buf) {
+  srt::ValueType<I>* buf_f;
+  srt::ValueType<I>* buf_l;
+
+  std::tie(std::ignore, buf_f, buf_l) =
+      buf.copy(std::move_iterator<I>(m), std::move_iterator<I>(l));
+  I res = std::move_backward(f, m, l);
+  std::move(buf_f, buf_l, f);
+  return res;
+}
+
+
+
 }  // namespace detail
 
-
-// concepts -------------------------------------------------------------------
+// temporary_buffer -----------------------------------------------------------
 
 template <typename T>
-constexpr bool TransparentComparator() {
-  return detail::has_is_transparent_member<T>::value;
-}
+class temporary_buffer {
+ public:
+  temporary_buffer(std::ptrdiff_t count) {
+    std::tie(buffer_, count_) = std::get_temporary_buffer<T>(count);
+    end_ = buffer_;
+  }
+
+  temporary_buffer(temporary_buffer&& x) = delete;
+  temporary_buffer& operator=(temporary_buffer&& x) = delete;
+
+  std::ptrdiff_t capacity() const { return count_; }
+
+  template <typename I>
+  std::tuple<I, T*, T*> copy(I f, I l) {
+    static_assert(RandomAccessIterator<I>(), "");
+    T* res_begin = end_;
+    if (std::distance(f, l) > count_) {
+      l = std::next(f, count_);
+    }
+    T* res_end = srt::uninitialized_copy(f, l, res_begin);
+    count_ -= res_begin - res_end;
+    end_ = res_end;
+    return std::make_tuple(l, res_begin, res_end);
+  }
+
+  void clear() {
+    count_ += end_ - buffer_;
+    while (buffer_ != end_) {
+      end_->~T();
+      --end_;
+    }
+  }
+
+  ~temporary_buffer() {
+    clear();
+    std::return_temporary_buffer(buffer_);
+  }
+
+private:
+  T* buffer_;
+  T* end_;
+  std::ptrdiff_t count_;
+};
 
 // functors -------------------------------------------------------------------
 
@@ -297,16 +552,32 @@ detail::inverse_t<F> inverse_fn(F f) noexcept {
 
 // algorithms -----------------------------------------------------------------
 
+template <typename I, typename O>
+O copy(I f, I l, O o) {
+  return detail::do_copy<false>(f, l, o);
+}
+
+template <typename I>
+I middle(I f, I l) {
+  static_assert(
+    std::numeric_limits<DifferenceType<I>>::max() <=
+    std::numeric_limits<size_t>::max(),
+    "iterators difference type is too big");
+  return std::next(f, static_cast<size_t>(std::distance(f, l)) / 2);
+}
+
+template <typename I, typename O>
+O uninitialized_copy(I f, I l, O o) {
+  return detail::do_uninitialized_copy(f, l, o);
+}
+
 // Think: stable_sort is a merge sort. Merge can be replaced with set_union ->
 // unique would not be required. Quick sort is not modified that easily (is it?)
 // to do this. How much does the unique matter? For the 1000 elements - log is
 // 10 - unique is 1 => 1/10? Measuring this would be cool.
 
-template <typename I, typename Comparator>
-// requires RandomAccessIterator<I>() && // It's possible to use Forward
-//                                       // but I would have to redo std::sort.
-//          StrictWeakOrdering<Comparator(ValueType<I>())>
-I sort_and_unique(I f, I l, Comparator comp) {
+template <typename I, typename Compare>
+I sort_and_unique(I f, I l, Compare comp) {
   std::sort(f, l, comp);
   return std::unique(f, l, not_fn(comp));
 }
@@ -316,18 +587,85 @@ I sort_and_unique(I f, I l) {
   return sort_and_unique(f, l, less{});
 }
 
+template <typename I1, typename I2, typename O, typename Compare>
+O set_union_linear(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp) {
+  if (f1 == l1) goto copySecond;
+  if (f2 == l2) goto copyFirst;
+
+  while (true) {
+    if (!comp(*f1, *f2)) goto checkSecond;
+    *o++ = *f1++; if (f1 == l1) goto copySecond;
+    goto biased;
+
+  checkSecond:
+    if (comp(*f2, *f1)) *o++ = *f2;
+    ++f2; if (f2 == l2) goto copyFirst;
+
+  biased:
+    if (!comp(*f1, *f2)) goto checkSecond;
+    *o++ = *f1++; if (f1 == l1) goto copySecond;
+    if (!comp(*f1, *f2)) goto checkSecond;
+    *o++ = *f1++; if (f1 == l1) goto copySecond;
+    if (!comp(*f1, *f2)) goto checkSecond;
+    *o++ = *f1++; if (f1 == l1) goto copySecond;
+  }
+
+copySecond:
+  return srt::copy(f2, l2, o);
+copyFirst:
+  return srt::copy(f1, l1, o);
+}
+
+template <typename I1, typename I2, typename O>
+O set_union_linear(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
+  return set_union_linear(f1, l1, f2, l2, o, less{});
+}
+
+template <typename I1, typename I2, typename O, typename Compare>
+O set_union_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp) {
+  if (f1 == l1) goto copySecond;
+  if (f2 == l2) goto copyFirst;
+
+  while (true) {
+    if (!comp(*f1, *f2)) goto checkSecond;
+    *o++ = *f1++; if (f1 == l1) goto copySecond;
+    goto biased;
+
+   checkSecond:
+    if (comp(*f2, *f1)) *o++ = *f2;
+    ++f2; if (f2 == l2) goto copyFirst;
+
+   biased:
+    if (!comp(*f1, *f2)) goto checkSecond;
+    *o++ = *f1++; if (f1 == l1) goto copySecond;
+    if (!comp(*f1, *f2)) goto checkSecond;
+    *o++ = *f1++; if (f1 == l1) goto copySecond;
+    if (!comp(*f1, *f2)) goto checkSecond;
+    *o++ = *f1++; if (f1 == l1) goto copySecond;
+    if (!comp(*f1, *f2)) goto checkSecond;
+    *o++ = *f1++; if (f1 == l1) goto copySecond;
+
+    I1 segment_end = detail::find_boundary(
+        f1, l1, [&](Reference<I1> x) { return comp(x, *f2); });
+    o = srt::copy(f1, segment_end, o);
+    f1 = segment_end;
+  }
+
+ copySecond:
+  return srt::copy(f2, l2, o);
+ copyFirst:
+  return srt::copy(f1, l1, o);
+}
+
+template <typename I1, typename I2, typename O>
+O set_union_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
+  return set_union_biased(f1, l1, f2, l2, o, less{});
+}
+
 template <typename I, typename O, typename P>
 O copy_until_adjacent_check(I f, I l, O o, P p) {
-  if (f == l) return o;
-
-  I next = f;
-  ++next;
-  for (; next != l; ++next, ++f) {
-    if (!p(*f, *next)) break;
-    *o = *f; ++o;
-  }
-  *o = *f; ++o;
-  return o;
+  return detail::do_copy_until_adjacent_check(f, l, o, p,
+                                              IteratorCategory<O>{});
 }
 
 template <typename I, typename O>
@@ -336,10 +674,9 @@ O copy_until_sorted(I f, I l, O o) {
 }
 
 template <typename I, typename P>
-// requires ForwardIterator<I> && UnaryPredicate<P, ValueType<I>>
 I partition_point_biased(I f, I l, P p) {
   while (f != l) {
-    I sent = detail::middle(f, l);
+    I sent = srt::middle(f, l);
     if (!p(*sent)) return detail::partition_point_biased_no_checks(f, p);
     f = ++sent;
   }
@@ -347,7 +684,6 @@ I partition_point_biased(I f, I l, P p) {
 }
 
 template <typename I, typename P>
-// requires BidirectionalIterator<I> && UnaryPredicate<P, ValueType<I>>
 I partition_point_hinted(I f, I hint, I l, P p) {
   I rhs = partition_point_biased(hint, l, p);
   if (rhs != hint)
@@ -379,13 +715,81 @@ I lower_bound_hinted(I f, I hint, I l, V v) {
   return lower_bound_hinted(f, hint, l, v, less{});
 }
 
-// algorithms: memory management. ---------------------------------------------
+template <typename I>
+I rotate_buffered(I f, I m, I l, ibuffer<I>& buf) {
+  srt::DifferenceType<I> lhs_size = std::distance(f, m);
+  srt::DifferenceType<I> rhs_size = std::distance(m, l);
 
-template <typename Alloc, typename I>
-void destroy_backward(I f, I l, Alloc& alloc) {
-  while (f != l) {
-    std::allocator_traits<Alloc>::destroy(alloc, &*--l);
+  if (lhs_size <= rhs_size) {
+    if (buf.capacity() >= lhs_size) {
+      return detail::rotate_buffered_lhs(f, m, l, buf);
+    }
+  } else {
+    if (buf.capacity() >= rhs_size) {
+      return detail::rotate_buffered_rhs(f, m, l, buf);
+    }
   }
+
+  return std::rotate(f, m, l);
+}
+
+template <typename I>
+I rotate_buffered(I f, I m, I l) {
+  srt::ibuffer<I> buf(std::min(std::distance(f, m), std::distance(m, l)));
+  return rotate_buffered(f, m, l, buf);
+}
+
+template <typename I, typename Compare>
+void inplace_merge_rotating_middles(I f, I m, I l, Compare comp) {
+  if (f == m || m == l) return;
+  I left_m = middle(f, m);
+  I right_m = std::lower_bound(m, l, *left_m);
+  m = std::rotate(left_m, m, right_m);
+
+  if (f == left_m) return; // middle of one element is always that element.
+  inplace_merge_rotating_middles(m, right_m, l, comp);
+  inplace_merge_rotating_middles(f, left_m, m, comp);
+}
+
+template <typename I>
+void inplace_merge_rotating_middles(I f, I m, I l) {
+  inplace_merge_rotating_middles(f, m, l, less{});
+}
+
+template <typename I, typename Compare>
+void inplace_merge_rotating_middles_buffered(I f,
+                                             I m,
+                                             I l,
+                                             Compare comp,
+                                             srt::ibuffer<I>& buf) {
+  if (f == m || m == l) return;
+  I left_m = srt::middle(f, m);
+  I right_m = std::lower_bound(m, l, *left_m);
+  m = srt::rotate_buffered(left_m, m, right_m, buf);
+  buf.clear();
+
+  if (f == left_m) return; // middle of one element is always that element.
+  inplace_merge_rotating_middles_buffered(m, right_m, l, comp, buf);
+  inplace_merge_rotating_middles_buffered(f, left_m, m, comp, buf);
+}
+
+template <typename I>
+void inplace_merge_rotating_middles_buffered(I f,
+                                             I m,
+                                             I l,
+                                             srt::ibuffer<I>& buf) {
+  return inplace_merge_rotating_middles_buffered(f, m, l, less{}, buf);
+}
+
+template <typename I, typename Compare>
+void inplace_merge_rotating_middles_buffered(I f, I m, I l, Compare comp) {
+  srt::ibuffer<I> buf(std::min(std::distance(f, m), std::distance(m, l)));
+  inplace_merge_rotating_middles_buffered(f, m, l, comp, buf);
+}
+
+template <typename I>
+void inplace_merge_rotating_middles_buffered(I f, I m, I l) {
+  inplace_merge_rotating_middles_buffered(f, m, l, less{});
 }
 
 // vector ---------------------------------------------------------------------
@@ -425,7 +829,6 @@ class vector {
   const allocator_type& alloc() const noexcept { return impl_; }
 
  public:
-
   allocator_type get_allocator() const noexcept {
     return alloc();
   }
@@ -444,8 +847,9 @@ class vector {
 
   size_type capacity() const noexcept { return buffer_end() - begin(); }
   void clear() noexcept {
-    destroy_backward(begin(), end(), alloc());
-    impl_.end_ = begin();
+    while (begin() != impl_.end_) {
+      alloc_traits::destroy(alloc(), &*--impl_.end_);
+    }
   }
 
   vector() noexcept(
@@ -457,11 +861,10 @@ class vector {
   }
 };
 
-
 // flat_set -------------------------------------------------------------------
 
 template <typename Key,
-          typename Comparator = less,
+          typename Compare = less,
           typename UnderlyingType = std::vector<Key>>
 // requires (todo)
 class flat_set {
@@ -471,8 +874,8 @@ class flat_set {
   using value_type = key_type;
   using size_type = typename underlying_type::size_type;
   using difference_type = typename underlying_type::difference_type;
-  using key_compare = Comparator;
-  using value_compare = Comparator;
+  using key_compare = Compare;
+  using value_compare = Compare;
   using reference = typename underlying_type::reference;
   using const_reference = typename underlying_type::const_reference;
   using pointer = typename underlying_type::pointer;
@@ -749,3 +1152,9 @@ void erase_if(flat_set<Key, Comparator, UnderlyingType>& x, P p) {
 }
 
 }  // namespace srt
+
+#endif  // SRT_LIBRARY_H_
+
+// ---------------------------------------------------------------------------
+// srt library ---------------------------------------------------------------
+// ---------------------------------------------------------------------------

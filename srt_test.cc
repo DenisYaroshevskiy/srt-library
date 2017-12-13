@@ -1,15 +1,41 @@
-#define CATCH_CONFIG_MAIN
-
 #include "srt.h"
-
-#include "third_party/catch.h"
 
 #include <algorithm>
 #include <functional>
 #include <numeric>
 #include <random>
 #include <set>
+#include <string>
 #include <vector>
+
+#define CATCH_CONFIG_MAIN
+#include "srt_test_templates.h"
+
+namespace {
+
+struct strange_cmp : srt::less {
+  explicit strange_cmp(int) {}
+};
+
+using int_vec = srt::vector<int>;
+
+using int_set = srt::flat_set<int>;
+using move_only_set = srt::flat_set<move_only_int>;
+using std_int_vec = int_set::underlying_type;
+using strange_cmp_set = srt::flat_set<int, strange_cmp>;
+using reverse_set = srt::flat_set<int, std::greater<int>>;
+
+struct template_constructor {
+  template <typename T>
+  template_constructor(const T&) {}
+
+  friend bool operator<(const template_constructor&,
+                        const template_constructor&) {
+    return false;
+  }
+};
+
+}  // namespace
 
 // algorithms -----------------------------------------------------------------
 
@@ -23,13 +49,52 @@ TEST_CASE("copy_until_sorted", "[algorithms]") {
   for (size_t size = kSize; size > 0; --size) {
     std::fill(vec.begin() + size, vec.end(), 0);
 
-    std::vector<int> actual;
-    srt::copy_until_sorted(vec.begin(), vec.end(), std::back_inserter(actual));
+    std::vector<int> actual_output;
+    srt::copy_until_sorted(vec.begin(), vec.end(),
+                           std::back_inserter(actual_output));
+
+    std::vector<int> actual_fwd(size);
+    srt::copy_until_sorted(vec.begin(), vec.end(), actual_fwd.begin());
 
     std::vector<int> expected(size);
     std::iota(expected.begin(), expected.end(), 1);
-    REQUIRE(expected == actual);
+    REQUIRE(expected == actual_output);
+    REQUIRE(expected == actual_fwd);
   }
+}
+
+TEST_CASE("int_tmp_buffer", "[temporary_buffer]") {
+  srt::temporary_buffer<int> buf(3);
+  using vec = std::vector<int>;
+  vec all_ints{1, 2, 3, 4};
+
+  vec::iterator l;
+  int* buf_f;
+  int* buf_l;
+
+  std::tie(l, buf_f, buf_l) = buf.copy(all_ints.begin(), all_ints.end());
+
+  REQUIRE(l == all_ints.end() - 1);
+
+  vec in_buffer(buf_f, buf_l);
+  REQUIRE(in_buffer == vec({1, 2, 3}));
+}
+
+TEST_CASE("string_tmp_buffer", "[temporary_buffer]") {
+  srt::temporary_buffer<std::string> buf(3);
+  using vec = std::vector<std::string>;
+  vec all_ints{"1", "2", "3", "4"};
+
+  vec::iterator l;
+  std::string* buf_f;
+  std::string* buf_l;
+
+  std::tie(l, buf_f, buf_l) = buf.copy(all_ints.begin(), all_ints.end());
+
+  REQUIRE(l == all_ints.end() - 1);
+
+  vec in_buffer(buf_f, buf_l);
+  REQUIRE(in_buffer == vec({"1", "2", "3"}));
 }
 
 TEST_CASE("lower_bound_biased", "[algorithms]") {
@@ -54,56 +119,48 @@ TEST_CASE("lower_bound_hinted", "[algorithms]") {
   }
 }
 
-// flat_set -------------------------------------------------------------------
+TEST_CASE("rotate_buffered", "[algorithms]") {
+  using I = std_int_vec::iterator;
+  rotate_test([](I f, I m, I l) {
+    return srt::rotate_buffered(f, m, l);
+  });
+}
 
-namespace {
+TEST_CASE("inplace_merge_rotating_middles", "[algorithms]") {
+  using I = std_int_vec::iterator;
+  inplace_merge_test([](I f, I m, I l) {
+    return srt::inplace_merge_rotating_middles(f, m, l);
+  });
+}
 
-struct strange_cmp : srt::less {
-  explicit strange_cmp(int) {}
-};
+TEST_CASE("inplace_merge_rotating_middles_buffered", "[algorithms]") {
+  using I = std_int_vec::iterator;
+  inplace_merge_test([](I f, I m, I l) {
+    return srt::inplace_merge_rotating_middles_buffered(f, m, l);
+  });
+}
 
-struct move_only_int {
-  int body;
-
-  move_only_int(int body) : body(body) {}
-  move_only_int(const move_only_int&) = delete;
-  move_only_int& operator=(const move_only_int&) = delete;
-
-  move_only_int(move_only_int&& x) noexcept {
-    body = x.body;
-    x.body = 0;
-  }
-
-  move_only_int& operator=(move_only_int&& x) noexcept {
-    body = x.body;
-    x.body = 0;
-    return *this;
-  }
-
-  friend bool operator<(const move_only_int& x, const move_only_int& y) {
-    return x.body < y.body;
+struct set_union_linear_functor {
+  template <typename I1, typename I2, typename O>
+  O operator()(I1 f1, I1 l1, I2 f2, I2 l2, O o) const {
+    return srt::set_union_linear(f1, l1, f2, l2, o);
   }
 };
 
-using int_vec = srt::vector<int>;
+TEST_CASE("set_union_linear", "[algorithms]") {
+  set_union_test(set_union_linear_functor{});
+}
 
-using int_set = srt::flat_set<int>;
-using move_only_set = srt::flat_set<move_only_int>;
-using std_int_vec = int_set::underlying_type;
-using strange_cmp_set = srt::flat_set<int, strange_cmp>;
-using reverse_set = srt::flat_set<int, std::greater<int>>;
-
-struct template_constructor {
-  template <typename T>
-  template_constructor(const T&) {}
-
-  friend bool operator<(const template_constructor&,
-                        const template_constructor&) {
-    return false;
+struct set_union_biased {
+  template <typename I1, typename I2, typename O>
+  O operator()(I1 f1, I1 l1, I2 f2, I2 l2, O o) const {
+    return srt::set_union_biased(f1, l1, f2, l2, o);
   }
 };
 
-}  // namespace
+TEST_CASE("set_union_biased", "[algorithms]") {
+  set_union_test(set_union_biased{});
+}
 
 // vector -----------------------------------------------------------------
 
@@ -121,7 +178,6 @@ TEST_CASE("vector_types", "[vector]") {
 TEST_CASE("vector_default_constructor", "vector") {
   int_vec v;
 }
-
 
 // flat_set ---------------------------------------------------------------
 
