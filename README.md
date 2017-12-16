@@ -1,5 +1,12 @@
 Small library where I experiment with flat containers.
 
+IMPORTANT NOTE IF YOU ATTENDED THE TALK:
+I found a bug in my implementation of set_union - the standard demands a
+certain behavior for repeating duplicates (like: [2] [2, 2, 2] => [2, 2, 2])
+I haven't tested for that and it's broken. For the purpose of flat_sets it
+doesn't matter, since we merge sets without duplicates.
+But now set_union is renamed to be set_union_unique.
+
 This library was primarily created to help with the standardization process of flat_sets,
 concentrating on different algorithms and their performance.
 (Consider, for example, implementing: flat_set::insert(first, last); - it's
