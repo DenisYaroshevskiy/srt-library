@@ -3,7 +3,7 @@
 #include <random>
 #include <set>
 
-#include "set_unions.h"
+#include "set_unions_unique.h"
 
 #include "benchmark/benchmark.h"
 
@@ -83,7 +83,7 @@ void set_input_sizes(benchmark::internal::Benchmark* bench) {
 }
 
 template <typename Alg>
-void set_union_bench(benchmark::State& state) {
+void set_union_unique_bench(benchmark::State& state) {
   const size_t lhs_size = static_cast<size_t>(state.range(0));
   const size_t rhs_size = static_cast<size_t>(state.range(1));
 
@@ -105,47 +105,47 @@ struct baseline_alg {
 
 #ifndef LAST_STEP
 
-struct linear_set_union {
+struct linear_set_union_unique {
   template <typename I1, typename I2, typename O>
   O operator()(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
-    return v7::set_union(f1, l1, f2, l2, o, std::less<>{});
+    return v7::set_union_unique(f1, l1, f2, l2, o, std::less<>{});
   }
 };
 
 #endif  // !LAST_STEP
 
-struct previous_set_union {
+struct previous_set_union_unique {
   template <typename I1, typename I2, typename O>
   O operator()(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
-    return v3::set_union(f1, l1, f2, l2, o, std::less<>{});
+    return v3::set_union_unique(f1, l1, f2, l2, o, std::less<>{});
   }
 };
 
-struct current_set_union {
+struct current_set_union_unique {
   template <typename I1, typename I2, typename O>
   O operator()(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
-    return v5::set_union(f1, l1, f2, l2, o, std::less<>{});
+    return v5::set_union_unique(f1, l1, f2, l2, o, std::less<>{});
   }
 };
 
 void baseline(benchmark::State& state) {
-  set_union_bench<baseline_alg>(state);
+  set_union_unique_bench<baseline_alg>(state);
 }
 
 #ifndef LAST_STEP
 
 void LinearSetUnion(benchmark::State& state) {
-  set_union_bench<linear_set_union>(state);
+  set_union_unique_bench<linear_set_union_unique>(state);
 }
 
 #endif  // LAST_STEP
 
 void PreviousSetUnion(benchmark::State& state) {
-  set_union_bench<previous_set_union>(state);
+  set_union_unique_bench<previous_set_union_unique>(state);
 }
 
 void CurrentSetUnion(benchmark::State& state) {
-  set_union_bench<current_set_union>(state);
+  set_union_unique_bench<current_set_union_unique>(state);
 }
 
 BENCHMARK(baseline)->Apply(set_input_sizes);

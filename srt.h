@@ -97,19 +97,19 @@ I sort_and_unique(I f, I l, Compare comp);
 
 template <typename I1, typename I2, typename O, typename Compare>
 // requires ForwardIterator<I> && StrictWeakOrdering<Compare<ValueType<I>>
-O set_union_linear(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp);
+O set_union_unique_linear(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp);
 
 template <typename I1, typename I2, typename O, typename Compare>
 // requires ForwardIterator<I>
-O set_union_linear(I1 f1, I1 l1, I2 f2, I2 l2, O o);
+O set_union_unique_linear(I1 f1, I1 l1, I2 f2, I2 l2, O o);
 
 template <typename I1, typename I2, typename O, typename Compare>
 // requires RandomAccessIterator<I> && StrictWeakOrdering<Compare<ValueType<I>>
-O set_union_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp);
+O set_union_unique_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp);
 
 template <typename I1, typename I2, typename O, typename Compare>
 // requires RandomAccessIterator<I>
-O set_union_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o);
+O set_union_unique_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o);
 
 template <typename I, typename P>
 // requires RandomAccessIterator<I> && UnaryPredicate<P, ValueType<I>>
@@ -588,7 +588,7 @@ I sort_and_unique(I f, I l) {
 }
 
 template <typename I1, typename I2, typename O, typename Compare>
-O set_union_linear(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp) {
+O set_union_unique_linear(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp) {
   if (f1 == l1) goto copySecond;
   if (f2 == l2) goto copyFirst;
 
@@ -617,12 +617,12 @@ copyFirst:
 }
 
 template <typename I1, typename I2, typename O>
-O set_union_linear(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
-  return set_union_linear(f1, l1, f2, l2, o, less{});
+O set_union_unique_linear(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
+  return set_union_unique_linear(f1, l1, f2, l2, o, less{});
 }
 
 template <typename I1, typename I2, typename O, typename Compare>
-O set_union_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp) {
+O set_union_unique_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp) {
   if (f1 == l1) goto copySecond;
   if (f2 == l2) goto copyFirst;
 
@@ -658,8 +658,8 @@ O set_union_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp) {
 }
 
 template <typename I1, typename I2, typename O>
-O set_union_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
-  return set_union_biased(f1, l1, f2, l2, o, less{});
+O set_union_unique_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
+  return set_union_unique_biased(f1, l1, f2, l2, o, less{});
 }
 
 template <typename I, typename O, typename P>

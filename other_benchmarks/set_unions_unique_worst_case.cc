@@ -3,7 +3,7 @@
 #include <random>
 #include <utility>
 
-#include "set_unions.h"
+#include "set_unions_unique.h"
 
 #include "benchmark/benchmark.h"
 
@@ -54,14 +54,14 @@ void set_union_bench(benchmark::State& state) {
 struct linear {
   template <typename I1, typename I2, typename O>
   O operator()(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
-    return v7::set_union(f1, l1, f2, l2, o, std::less<>{});
+    return v7::set_union_unique(f1, l1, f2, l2, o, std::less<>{});
   }
 };
 
 struct biased {
   template <typename I1, typename I2, typename O>
   O operator()(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
-    return v10::set_union(f1, l1, f2, l2, o, std::less<>{});
+    return v10::set_union_unique(f1, l1, f2, l2, o, std::less<>{});
   }
 };
 

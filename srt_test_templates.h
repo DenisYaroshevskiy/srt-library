@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <numeric>
 #include <random>
+#include <set>
 #include <vector>
 
 #include "third_party/catch.h"
@@ -41,7 +42,7 @@ struct move_only_int {
 };
 
 template <typename Alg>
-void set_union_random_test(Alg alg) {
+void set_union_unique_random_test(Alg alg) {
   auto random_number = [] {
     static std::mt19937 g;
     static std::uniform_int_distribution<> dis(1, 10000);
@@ -103,8 +104,8 @@ void std_set_bug(Alg alg) {
 }
 
 template <typename Alg>
-void set_union_test(Alg alg) {
-  set_union_random_test(alg);
+void set_union_unique_test(Alg alg) {
+  set_union_unique_random_test(alg);
   std_set_bug(alg);
 }
 
@@ -154,5 +155,43 @@ void rotate_test(Alg alg) {
 
     REQUIRE(expected_point - expected.begin() == actual_point - actual.begin());
     REQUIRE(expected == actual);
+  }
+}
+
+template <typename Alg>
+void set_union_deduplicating_second_test(Alg alg) {
+  auto random_number = [] {
+    static std::mt19937 g;
+    static std::uniform_int_distribution<> dis(1, 1000);
+    return dis(g);
+  };
+
+  constexpr size_t kMaxSize = 100u;
+  for (size_t cur_size = 0; cur_size <= kMaxSize; ++cur_size) {
+    for (size_t lhs_size = 0; lhs_size <= cur_size; ++lhs_size) {
+      std::vector<int> lhs = [&] {
+        std::set<int> res;
+        while (res.size() <= lhs_size)
+          res.insert(random_number());
+        return std::vector<int>{res.begin(), res.end()};
+      }();
+
+      std::vector<int> rhs(cur_size - lhs_size);
+      std::generate(rhs.begin(), rhs.end(), random_number);
+      std::sort(rhs.begin(), rhs.end());
+
+      std::vector<int> expected = lhs;
+      expected.insert(expected.end(), rhs.begin(), rhs.end());
+      std::sort(expected.begin(), expected.end());
+      expected.erase(std::unique(expected.begin(), expected.end()),
+                     expected.end());
+
+      std::vector<int> actual(lhs.size() + rhs.size());
+      actual.erase(
+          alg(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), actual.begin()),
+          actual.end());
+
+      REQUIRE(expected == actual);
+    }
   }
 }

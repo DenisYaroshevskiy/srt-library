@@ -6,7 +6,7 @@
 namespace v1 {
 
 template <class I1, class I2, class O, class Comp>
-O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
+O set_union_unique(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
   for (; f1 != l1; ++o) {
     if (f2 == l2)
       return std::copy(f1, l1, o);
@@ -28,7 +28,7 @@ O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
 namespace v2 {
 
 template <class I1, class I2, class O, class Comp>
-O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
+O set_union_unique(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
   for (; f1 != l1; ++o) {
     if (f2 == l2)
       return std::copy(f1, l1, o);
@@ -50,7 +50,7 @@ O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
 namespace v3 {
 
 template <class I1, class I2, class O, class Comp>
-O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
+O set_union_unique(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
   if (f1 == l1) goto copySecond;
   if (f2 == l2) goto copyFirst;
 
@@ -79,7 +79,7 @@ O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
 namespace v4 {
 
 template <class I1, class I2, class O, class Comp>
-O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
+O set_union_unique(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
   if (f1 == l1) goto copySecond;
   if (f2 == l2) goto copyFirst;
 
@@ -104,7 +104,7 @@ O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
 namespace v5 {
 
 template <class I1, class I2, class O, class Comp>
-O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
+O set_union_unique(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
   if (f1 == l1) goto copySecond;
   if (f2 == l2) goto copyFirst;
 
@@ -129,7 +129,7 @@ O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
 namespace v6 {
 
 template <class I1, class I2, class O, class Comp>
-O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
+O set_union_unique(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
   if (f1 == l1) goto copySecond;
   if (f2 == l2) goto copyFirst;
   goto start;
@@ -160,7 +160,7 @@ O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
 namespace v7 {
 
 template <class I1, class I2, class O, class Comp>
-O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
+O set_union_unique(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
   if (f1 == l1) goto copySecond;
   if (f2 == l2) goto copyFirst;
 
@@ -193,7 +193,7 @@ copyFirst:
 namespace v8 {
 
 template <class I1, class I2, class O, class Comp>
-O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
+O set_union_unique(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
   I1 next_f1 = f1;
   if (f1 == l1) goto copySecond;
   if (f2 == l2) goto copyFirst;
@@ -249,7 +249,7 @@ I partition_point_biased(I f, I l, P p) {
 }
 
 template <class I1, class I2, class O, class Comp>
-O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
+O set_union_unique(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
   I1 next_f1 = f1;
   if (f1 == l1) goto copySecond;
   if (f2 == l2) goto copyFirst;
@@ -322,7 +322,7 @@ I find_boundary(I f, I l, P p) {
 }
 
 template <class I1, class I2, class O, class Comp>
-O set_union(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
+O set_union_unique(I1 f1, I1 l1, I2 f2, I2 l2, O o, Comp comp) {
   if (f1 == l1) goto copySecond;
   if (f2 == l2) goto copyFirst;
 

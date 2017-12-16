@@ -140,26 +140,26 @@ TEST_CASE("inplace_merge_rotating_middles_buffered", "[algorithms]") {
   });
 }
 
-struct set_union_linear_functor {
+struct set_union_unique_linear_functor {
   template <typename I1, typename I2, typename O>
   O operator()(I1 f1, I1 l1, I2 f2, I2 l2, O o) const {
-    return srt::set_union_linear(f1, l1, f2, l2, o);
+    return srt::set_union_unique_linear(f1, l1, f2, l2, o);
   }
 };
 
-TEST_CASE("set_union_linear", "[algorithms]") {
-  set_union_test(set_union_linear_functor{});
+TEST_CASE("set_union_unique_linear", "[algorithms]") {
+  set_union_unique_test(set_union_unique_linear_functor{});
 }
 
-struct set_union_biased {
+struct set_union_unique_biased {
   template <typename I1, typename I2, typename O>
   O operator()(I1 f1, I1 l1, I2 f2, I2 l2, O o) const {
-    return srt::set_union_biased(f1, l1, f2, l2, o);
+    return srt::set_union_unique_biased(f1, l1, f2, l2, o);
   }
 };
 
-TEST_CASE("set_union_biased", "[algorithms]") {
-  set_union_test(set_union_biased{});
+TEST_CASE("set_union_unique_biased", "[algorithms]") {
+  set_union_unique_test(set_union_unique_biased{});
 }
 
 // vector -----------------------------------------------------------------
