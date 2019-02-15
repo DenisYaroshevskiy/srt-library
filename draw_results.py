@@ -38,7 +38,7 @@ def parseJson(loaded_benchmarks_json, baseline_name):
     raise "No baseline benchmark found"
 
   variations = []
-  for name, ms in measurements.iteritems():
+  for name, ms in measurements.items():
     if name == baseline_name:
       continue
     for m, baseline in zip(ms, measurements[baseline_name]):
@@ -53,8 +53,9 @@ def parseJson(loaded_benchmarks_json, baseline_name):
 def drawPlot(variations):
   traces = []
   for variation in variations:
-    input_sizes = map(lambda m : m.input_size, variation.measurements)
-    times = map(lambda m: m.time, variation.measurements)
+    input_sizes = list(map(lambda m : m.input_size, variation.measurements))
+    times = list(map(lambda m: m.time, variation.measurements))
+    print(input_sizes)
     line = dict( width = 3)
 
     trace = Scatter(x = input_sizes,
@@ -72,7 +73,7 @@ def drawPlot(variations):
   dtick_y = 250
   x_title = 'rhs size'
   if flat_sets == True:
-    dtick_y = 5000
+    dtick_y = 10000
     x_title = 'inserting elements size'
   if last_40 == True:
     dtick_x = 1
@@ -82,7 +83,7 @@ def drawPlot(variations):
 
 
   layout['xaxis'] = dict(title=x_title,
-                         autotick=False,
+                         #autotick=False,
                          ticks='outside',
                          tick0=0,
                          dtick=dtick_x,
@@ -90,12 +91,9 @@ def drawPlot(variations):
                          tickwidth=4,
                          tickcolor='#000')
   layout['yaxis'] = dict(title='ns',
-                         autotick=False,
                          ticks='outside',
                          tick0=0,
                          dtick=dtick_y,
-                         ticklen=8,
-                         tickwidth=4,
                          tickcolor='#000')
 
   return plotly.offline.plot(
