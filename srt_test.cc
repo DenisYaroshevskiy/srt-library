@@ -6,6 +6,7 @@
 #include <random>
 #include <set>
 #include <string>
+#include <list>
 #include <vector>
 
 #define CATCH_CONFIG_MAIN
@@ -32,6 +33,31 @@ struct template_constructor {
     return false;
   }
 };
+
+struct no_default_or_copy {
+  explicit no_default_or_copy(int x) : body(x) {}
+  no_default_or_copy(no_default_or_copy&&) = default;
+  no_default_or_copy& operator=(no_default_or_copy&&) = default;
+
+  friend bool operator<(const no_default_or_copy& x, const no_default_or_copy& y) {
+    return x.body < y.body;
+  }
+
+  friend bool operator==(const no_default_or_copy& x, const no_default_or_copy& y) {
+    return x.body == y.body;
+  }
+
+  friend std::ostream& operator<<(std::ostream& out, const no_default_or_copy& x) {
+    out << x.body;
+    return out;
+  }
+
+  int body;
+};
+
+static_assert(!std::is_default_constructible<no_default_or_copy>::value, "");
+static_assert(!std::is_copy_constructible<no_default_or_copy>::value, "");
+static_assert(!std::is_copy_assignable<no_default_or_copy>::value, "");
 
 }  // namespace
 
@@ -119,9 +145,7 @@ TEST_CASE("lower_bound_hinted", "[algorithms]") {
 
 TEST_CASE("rotate_buffered", "[algorithms]") {
   using I = std_int_vec::iterator;
-  rotate_test([](I f, I m, I l) {
-    return srt::rotate_buffered(f, m, l);
-  });
+  rotate_test([](I f, I m, I l) { return srt::rotate_buffered(f, m, l); });
 }
 
 TEST_CASE("inplace_merge_rotating_middles", "[algorithms]") {
@@ -168,13 +192,6 @@ TEST_CASE("resize_with_junk int", "[algorithms]") {
 }
 
 TEST_CASE("resize_with_junk weird type", "[algorithms]") {
-  struct no_default_or_copy {
-    no_default_or_copy(int) {}
-    no_default_or_copy(no_default_or_copy&&) {}
-    no_default_or_copy& operator=(no_default_or_copy&&) { return *this; }
-  };
-
-
   std::vector<no_default_or_copy> v;
   no_default_or_copy sample(0);
 
@@ -477,6 +494,27 @@ TEST_CASE("flat_set_insert_f_l", "[flat_cainers, flat_set]") {
   }
 }
 
+TEST_CASE("flat_set_insert_f_l_weird_types", "[flat_cainers, flat_set]") {
+  std::list<no_default_or_copy> values;
+
+  values.emplace_back(3);
+  values.emplace_back(1);
+  values.emplace_back(2);
+
+  srt::flat_set<no_default_or_copy> c;
+  c.emplace(4);
+  c.insert(std::make_move_iterator(values.begin()), std::make_move_iterator(values.end()));
+
+  std::vector<no_default_or_copy> expected;
+
+  expected.emplace_back(1);
+  expected.emplace_back(2);
+  expected.emplace_back(3);
+  expected.emplace_back(4);
+
+  REQUIRE(expected == c.body());
+}
+
 TEST_CASE("flat_set_erase_pos", "[flat_cainers, flat_set]") {
   {
     int_set c{1, 2, 3, 4, 5, 6, 7, 8};
@@ -529,8 +567,7 @@ TEST_CASE("flat_set_erase_pos", "[flat_cainers, flat_set]") {
     template_constructor v(0);
 
     auto it = c.find(v);
-    if (it != c.end())
-      c.erase(it);
+    if (it != c.end()) c.erase(it);
   }
 }
 
