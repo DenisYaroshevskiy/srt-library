@@ -955,3 +955,15 @@ TEST_CASE("flat_set_erase_if", "[flat_cainers, flat_set]") {
   expected = {2, 4};
   REQUIRE(expected == x.body());
 }
+
+TEST_CASE("flat_set greater", "[flat_cainers, flat_set]") {
+  srt::flat_set<int, std::greater<int>> x{1, 2, 3};
+
+  std_int_vec expected = {3, 2, 1};
+  REQUIRE(expected == x.body());
+
+  x.insert({4, 5, 6, 7, 8});
+
+  expected = {8, 7, 6, 5, 4, 3, 2, 1};
+  REQUIRE(expected == x.body());
+}

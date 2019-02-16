@@ -189,6 +189,27 @@ template <typename C, typename T>
 // requires RandomAccessContainer<C> && std::is_same<ContainerValueType<C>, T>
 void resize_with_junk(C& c, T&& sample, ContainerSizeType<C> new_len);
 
+// functors -------------------------------------------------------------------
+
+struct less;
+
+namespace detail {
+
+template <typename F>
+struct not_fn_t;
+
+template <typename F>
+struct inverse_t;
+
+}  // namespace detail
+
+template <typename F>
+// requires Predicate<F>
+detail::not_fn_t<F> not_fn(F f) noexcept;
+
+template <typename F>
+detail::inverse_t<F> inverse_fn(F f) noexcept;
+
 // implementation -------------------------------------------------------------
 
 namespace detail {
@@ -223,9 +244,9 @@ class junk_iterator {
   }
 
   friend junk_iterator operator+(const junk_iterator& x,
-                                 const junk_iterator& y) {
+                                 difference_type distance) {
     junk_iterator tmp = x;
-    tmp += x;
+    tmp += distance;
     return tmp;
   }
 
@@ -1046,9 +1067,13 @@ class flat_set {
   template <typename I>
   void insert(I f, I l) {
     underlying_type buf(f, l, body().get_allocator());
-    buf.erase(sort_and_unique(buf.begin(), buf.end()), buf.end());
+    buf.erase(sort_and_unique(buf.begin(), buf.end(), value_comp()), buf.end());
     insert_sorted_unique(std::make_move_iterator(buf.begin()),
                          std::make_move_iterator(buf.end()));
+  }
+
+  void insert(std::initializer_list<value_type> ilist) {
+    insert(ilist.begin(), ilist.end());
   }
 
   template <typename... Args>
