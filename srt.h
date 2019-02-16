@@ -468,7 +468,7 @@ std::reverse_iterator<I> make_reverse_iterator(I it) {
 template <typename C, typename I, typename P>
 // requires Container<C> && ForwardIterator<I> &&
 // StrictWeakOrdering<P(ValueType<C>)>
-void insert_sorted_impl(C& c, I f, I l, P p) {
+void insert_sorted_unique_impl(C& c, I f, I l, P p) {
   auto new_len = std::distance(f, l);
   auto orig_len = c.size();
 
@@ -1031,24 +1031,24 @@ class flat_set {
   }
 
   template <typename I>
-  void insert_sorted(I f, I l) {
+  void insert_sorted_unique(I f, I l) {
     // Need to count elements.
     if (!ForwardIterator<I>()) {
       underlying_type buf(f, l, body().get_allocator());
-      insert_sorted(std::make_move_iterator(buf.begin()),
-                    std::make_move_iterator(buf.end()));
+      insert_sorted_unique(std::make_move_iterator(buf.begin()),
+                           std::make_move_iterator(buf.end()));
       return;
     }
 
-    detail::insert_sorted_impl(body(), f, l, value_comp());
+    detail::insert_sorted_unique_impl(body(), f, l, value_comp());
   }
 
   template <typename I>
   void insert(I f, I l) {
     underlying_type buf(f, l, body().get_allocator());
     buf.erase(sort_and_unique(buf.begin(), buf.end()), buf.end());
-    insert_sorted(std::make_move_iterator(buf.begin()),
-                  std::make_move_iterator(buf.end()));
+    insert_sorted_unique(std::make_move_iterator(buf.begin()),
+                         std::make_move_iterator(buf.end()));
   }
 
   template <typename... Args>
