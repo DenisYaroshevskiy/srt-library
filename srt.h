@@ -55,6 +55,11 @@ using ContainerSizeType = typename C::size_type;
 // concepts ------------------------------------------------------------------
 
 template <typename I>
+constexpr bool ForwardIterator() {
+  return std::is_base_of<std::forward_iterator_tag, IteratorCategory<I>>::value;
+}
+
+template <typename I>
 constexpr bool RandomAccessIterator() {
   return std::is_same<IteratorCategory<I>,
                       std::random_access_iterator_tag>::value;
@@ -186,9 +191,9 @@ template <typename I>
 // requires RandomAccessIterator<I>
 void inplace_merge_rotating_middles_buffered(I f, I m, I l);
 
-template <typename C>
-// requires RandomAccessContainer<C> && std::is_same<ContainerValueType<C>, V>
-void resize_with_junk(C& c, ContainerValueType<C>& sample, ContainerSizeType<C> new_len);
+template <typename C, typename T>
+// requires RandomAccessContainer<C> && std::is_same<ContainerValueType<C>, T>
+void resize_with_junk(C& c, T&& sample, ContainerSizeType<C> new_len);
 
 // implementation -------------------------------------------------------------
 
@@ -400,6 +405,7 @@ I find_boundary(I f, I l, P p) {
   return partition_point_biased_no_checks(f, p);
 }
 
+// clang-format off
 template <class I1, class I2, class O, class Comp>
 std::tuple<I1, I2, O> set_union_intersecting_parts(I1 f1,
                                                    I1 l1,
@@ -439,6 +445,7 @@ std::tuple<I1, I2, O> set_union_intersecting_parts(I1 f1,
  copyFirst:
   return std::make_tuple(f1, f2, o);
 }
+// clang-format on
 
 template <typename I1, typename I2, typename P>
 // requires ForwardIterator<I1> && ForwardIterator<I2> &&
@@ -454,38 +461,27 @@ std::pair<I1, I1> set_union_into_tail(I1 buf, I1 f1, I1 l1, I2 f2, I2 l2, P p) {
   return {srt::copy(f2, l2, buf), move_f1.base()};
 }
 
+template <typename I>
+std::reverse_iterator<I> make_reverse_iterator(I it) {
+  return std::reverse_iterator<I>{it};
+}
+
 template <typename C, typename I, typename P>
-// requires Container<C> &&  ForwardIterator<I> &&
-//          StrictWeakOrdering<P(ValueType<C>)>
-void insert_first_last_impl(C& c, I f, I l, P p) {
+// requires Container<C> && ForwardIterator<I> && StrictWeakOrdering<P(ValueType<C>)>
+void insert_sorted_impl(C& c, I f, I l, P p) {
   auto new_len = std::distance(f, l);
   auto orig_len = c.size();
 
-  resize_with_junk(c, *f, orig_len + 2 * new_len);
+  resize_with_junk(c, *f, orig_len + new_len);
 
   Iterator<C> orig_f = c.begin();
   Iterator<C> orig_l = c.begin() + orig_len;
-  Iterator<C> f_in = c.end() - new_len;
-  Iterator<C> l_in = c.end();
-  Iterator<C> buf = f_in;
-
-  srt::copy(f, l, f_in);
-  l_in = sort_and_unique(f_in, l_in, p);
-
-  using reverse_it = typename C::reverse_iterator;
-  auto move_reverse_it =
-      [](Iterator<C> it) { return std::make_move_iterator(reverse_it(it)); };
 
   auto reverse_remainig_buf_range = detail::set_union_into_tail(
-      reverse_it(buf), reverse_it(orig_l), reverse_it(orig_f),
-      move_reverse_it(l_in), move_reverse_it(f_in), inverse_fn(p));
+      make_reverse_iterator(c.end()), make_reverse_iterator(orig_l), make_reverse_iterator(orig_f),
+      make_reverse_iterator(l), make_reverse_iterator(f), inverse_fn(p));
 
-  auto remaining_buf =
-      std::make_pair(reverse_remainig_buf_range.second.base() - c.begin(),
-                     reverse_remainig_buf_range.first.base() - c.begin());
-
-  c.erase(c.end() - new_len, c.end());
-  c.erase(c.begin() + remaining_buf.first, c.begin() + remaining_buf.second);
+  c.erase(reverse_remainig_buf_range.second.base(), reverse_remainig_buf_range.first.base());
 }
 
 template <typename I, typename O>
@@ -886,8 +882,8 @@ void inplace_merge_rotating_middles_buffered(I f, I m, I l) {
   inplace_merge_rotating_middles_buffered(f, m, l, less{});
 }
 
-template <typename C>
-void resize_with_junk(C& c, ContainerValueType<C>& sample, ContainerSizeType<C> new_len) {
+template <typename C, typename T>
+void resize_with_junk(C& c, T&& sample, ContainerSizeType<C> new_len) {
   detail::do_resize_with_junk(c, sample, new_len);
 }
 
@@ -1038,8 +1034,22 @@ class flat_set {
   }
 
   template <typename I>
+  void insert_sorted(I f, I l) {
+    // Need to count elements.
+    if (!ForwardIterator<I>()) {
+      underlying_type buf(f, l, body().get_allocator());
+      insert_sorted(std::make_move_iterator(buf.begin()), std::make_move_iterator(buf.end()));
+      return;
+    }
+
+    detail::insert_sorted_impl(body(), f, l, value_comp());
+  }
+
+  template <typename I>
   void insert(I f, I l) {
-    detail::insert_first_last_impl(body(), f, l, value_comp());
+    underlying_type buf(f, l, body().get_allocator());
+    buf.erase(sort_and_unique(buf.begin(), buf.end()), buf.end());
+    insert_sorted(std::make_move_iterator(buf.begin()), std::make_move_iterator(buf.end()));
   }
 
   template <typename... Args>
