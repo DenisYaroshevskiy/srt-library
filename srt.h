@@ -169,23 +169,17 @@ void inplace_merge_rotating_middles(I f, I m, I l);
 
 template <typename I, typename Compare>
 // requires RandomAccessIterator<I> && StrictWeakOrdering<Compare<ValueType<I>>
-void inplace_merge_rotating_middles_buffered(I f,
-                                             I m,
-                                             I l,
-                                             Compare comp,
+void inplace_merge_rotating_middles_buffered(I f, I m, I l, Compare comp,
                                              srt::ibuffer<I>& buf);
 
 template <typename I>
 // requires RandomAccessIterator<I>
-void inplace_merge_rotating_middles_buffered(I f,
-                                             I m,
-                                             I l,
+void inplace_merge_rotating_middles_buffered(I f, I m, I l,
                                              srt::ibuffer<I>& buf);
 
 template <typename I, typename Compare>
 // requires RandomAccessIterator<I> && StrictWeakOrdering<Compare<ValueType<I>>
 void inplace_merge_rotating_middles_buffered(I f, I m, I l, Compare comp);
-
 
 template <typename I>
 // requires RandomAccessIterator<I>
@@ -201,73 +195,77 @@ namespace detail {
 
 template <typename T>
 class junk_iterator {
-  public:
-    using difference_type = std::ptrdiff_t;
-    using value_type = T;
-    using reference = T&&;
-    using pointer = T*;
-    using iterator_category = std::random_access_iterator_tag;
+ public:
+  using difference_type = std::ptrdiff_t;
+  using value_type = T;
+  using reference = T&&;
+  using pointer = T*;
+  using iterator_category = std::random_access_iterator_tag;
 
-    junk_iterator(pointer junk_sample, difference_type count) :
-      junk_sample_{junk_sample},
-      count_{count} {}
+  junk_iterator(pointer junk_sample, difference_type count)
+      : junk_sample_{junk_sample}, count_{count} {}
 
-    reference operator*() const { return std::move(*junk_sample_); }
+  reference operator*() const { return std::move(*junk_sample_); }
 
-    junk_iterator& operator++() {
-      ++count_;
-      return *this;
-    }
-    junk_iterator operator++(int) {
-      junk_iterator tmp = *this;
-      operator++();
-      return tmp;
-    }
+  junk_iterator& operator++() {
+    ++count_;
+    return *this;
+  }
+  junk_iterator operator++(int) {
+    junk_iterator tmp = *this;
+    operator++();
+    return tmp;
+  }
 
-    junk_iterator& operator+=(difference_type distance) {
-      count_ += distance;
-      return *this;
-    }
+  junk_iterator& operator+=(difference_type distance) {
+    count_ += distance;
+    return *this;
+  }
 
-    friend junk_iterator operator+(const junk_iterator& x, const junk_iterator& y) {
-      junk_iterator tmp = x;
-      tmp += x;
-      return tmp;
-    }
+  friend junk_iterator operator+(const junk_iterator& x,
+                                 const junk_iterator& y) {
+    junk_iterator tmp = x;
+    tmp += x;
+    return tmp;
+  }
 
-    friend difference_type operator-(const junk_iterator& x, const junk_iterator& y) {
-      return x.count_ - y.count_;
-    }
+  friend difference_type operator-(const junk_iterator& x,
+                                   const junk_iterator& y) {
+    return x.count_ - y.count_;
+  }
 
-    friend bool operator==(const junk_iterator& x, const junk_iterator& y) {
-      return x.count_ == y.count_;
-    }
+  friend bool operator==(const junk_iterator& x, const junk_iterator& y) {
+    return x.count_ == y.count_;
+  }
 
-    friend bool operator!=(const junk_iterator& x, const junk_iterator& y) {
-      return !(x == y);
-    }
+  friend bool operator!=(const junk_iterator& x, const junk_iterator& y) {
+    return !(x == y);
+  }
 
-  private:
-    pointer junk_sample_;
-    difference_type count_;
+ private:
+  pointer junk_sample_;
+  difference_type count_;
 };
 
 template <typename T>
-std::pair<junk_iterator<T>, junk_iterator<T>>
-junk_range(T& junk_sample, std::ptrdiff_t size) {
-  return {junk_iterator<T>{&junk_sample, 0}, junk_iterator<T>{&junk_sample, size}};
+std::pair<junk_iterator<T>, junk_iterator<T>> junk_range(T& junk_sample,
+                                                         std::ptrdiff_t size) {
+  return {junk_iterator<T>{&junk_sample, 0},
+          junk_iterator<T>{&junk_sample, size}};
 }
 
 template <typename C>
 typename std::enable_if<ResizeableContainer<C>(), void>::type
-do_resize_with_junk(C& c, ContainerValueType<C>&, ContainerSizeType<C> new_len) {
+do_resize_with_junk(C& c, ContainerValueType<C>&,
+                    ContainerSizeType<C> new_len) {
   c.resize(new_len);
 }
 
 template <typename C>
 // requires Container<C>
 typename std::enable_if<!ResizeableContainer<C>(), void>::type
-do_resize_with_junk(C& c, ContainerValueType<C>& sample, ContainerSizeType<C> new_len) {
+do_resize_with_junk(C& c, ContainerValueType<C>& sample,
+                    ContainerSizeType<C> new_len) {
   if (new_len <= c.size()) {
     c.erase(std::prev(c.end(), c.size() - new_len), c.end());
     return;
@@ -302,7 +300,8 @@ struct inverse_t {
 
 // libc++ currently does not copy optimize to memmove for reverse iterators.
 // This is a small hack to fix this.
-// A proper patch has been submitted: https://reviews.llvm.org/D38653 but it was rejected.
+// A proper patch has been submitted: https://reviews.llvm.org/D38653 but it was
+// rejected.
 
 template <typename I>
 struct is_reverse_iterator : std::false_type {};
@@ -353,9 +352,8 @@ O do_copy(I f, I l, O o) {
   {
     constexpr bool condition = is_move_iterator<I>::value && is_trivial_copy;
     if (condition)
-      return O(do_copy<is_backward>(unwrap<condition>(f),
-                                    unwrap<condition>(l),
-                                    o));
+      return O(
+          do_copy<is_backward>(unwrap<condition>(f), unwrap<condition>(l), o));
   }
 
   {
@@ -363,9 +361,8 @@ O do_copy(I f, I l, O o) {
         is_reverse_iterator<I>::value && is_reverse_iterator<O>::value;
     constexpr bool new_is_backward = condition ? !is_backward : is_backward;
     if (condition)
-      return O(do_copy<new_is_backward>(unwrap<condition>(l),
-                                        unwrap<condition>(f),
-                                        unwrap<condition>(o)));
+      return O(do_copy<new_is_backward>(
+          unwrap<condition>(l), unwrap<condition>(f), unwrap<condition>(o)));
   }
   return O(call_copy<is_backward>(f, l, o));
 }
@@ -384,6 +381,7 @@ typename std::enable_if
 >::type;
 // clang-format on
 
+// clang-format off
 template <typename I, typename P>
 I partition_point_biased_no_checks(I f, P p) {
   while(true) {
@@ -397,6 +395,7 @@ I partition_point_biased_no_checks(I f, P p) {
     }
   }
 }
+// clang-format on
 
 template <typename I, typename P>
 I find_boundary(I f, I l, P p) {
@@ -467,7 +466,8 @@ std::reverse_iterator<I> make_reverse_iterator(I it) {
 }
 
 template <typename C, typename I, typename P>
-// requires Container<C> && ForwardIterator<I> && StrictWeakOrdering<P(ValueType<C>)>
+// requires Container<C> && ForwardIterator<I> &&
+// StrictWeakOrdering<P(ValueType<C>)>
 void insert_sorted_impl(C& c, I f, I l, P p) {
   auto new_len = std::distance(f, l);
   auto orig_len = c.size();
@@ -478,36 +478,34 @@ void insert_sorted_impl(C& c, I f, I l, P p) {
   Iterator<C> orig_l = c.begin() + orig_len;
 
   auto reverse_remainig_buf_range = detail::set_union_into_tail(
-      make_reverse_iterator(c.end()), make_reverse_iterator(orig_l), make_reverse_iterator(orig_f),
-      make_reverse_iterator(l), make_reverse_iterator(f), inverse_fn(p));
+      make_reverse_iterator(c.end()), make_reverse_iterator(orig_l),
+      make_reverse_iterator(orig_f), make_reverse_iterator(l),
+      make_reverse_iterator(f), inverse_fn(p));
 
-  c.erase(reverse_remainig_buf_range.second.base(), reverse_remainig_buf_range.first.base());
+  c.erase(reverse_remainig_buf_range.second.base(),
+          reverse_remainig_buf_range.first.base());
 }
 
 template <typename I, typename O>
 constexpr bool enable_trivial_copy() {
-   return std::is_trivially_copy_constructible<ValueType<O>>::value &&
-          std::is_same<typename std::remove_const<ValueType<I>>::type, ValueType<O>>::value;
+  return std::is_trivially_copy_constructible<ValueType<O>>::value &&
+         std::is_same<typename std::remove_const<ValueType<I>>::type,
+                      ValueType<O>>::value;
 }
 
 template <typename I, typename O>
 typename std::enable_if<!detail::enable_trivial_copy<I, O>(), O>::type
-do_uninitialized_copy(I f, I l, O o)
-{
-    using value_type = typename std::iterator_traits<I>::value_type;
-    O s = o;
-    try
-    {
-        for (; f != l; ++f, (void) ++o)
-            ::new (static_cast<void*>(std::addressof(*o))) value_type(*f);
-    }
-    catch (...)
-    {
-        for (; s != o; ++s)
-            s->~value_type();
-        throw;
-    }
-    return o;
+do_uninitialized_copy(I f, I l, O o) {
+  using value_type = typename std::iterator_traits<I>::value_type;
+  O s = o;
+  try {
+    for (; f != l; ++f, (void)++o)
+      ::new (static_cast<void*>(std::addressof(*o))) value_type(*f);
+  } catch (...) {
+    for (; s != o; ++s) s->~value_type();
+    throw;
+  }
+  return o;
 }
 
 template <typename I, typename O>
@@ -524,10 +522,12 @@ O do_copy_until_adjacent_check(I f, I l, O o, P p, std::output_iterator_tag) {
   ++next;
   for (; next != l; ++next, ++f) {
     if (!p(*f, *next)) break;
-    *o = *f; ++o;
+    *o = *f;
+    ++o;
   }
 
-  *o = *f; ++o;
+  *o = *f;
+  ++o;
   return o;
 }
 
@@ -539,9 +539,11 @@ O do_copy_until_adjacent_check(I f, I l, O o, P p, std::forward_iterator_tag) {
   ++next;
   for (; next != l; ++next, ++f) {
     if (!p(*f, *next)) break;
-    *o = *f; ++o;
+    *o = *f;
+    ++o;
   }
-  *o = *f; ++o;
+  *o = *f;
+  ++o;
   return o;
 }
 
@@ -612,7 +614,7 @@ class temporary_buffer {
     std::return_temporary_buffer(buffer_);
   }
 
-private:
+ private:
   T* buffer_;
   T* end_;
   std::ptrdiff_t count_;
@@ -649,10 +651,9 @@ O copy(I f, I l, O o) {
 
 template <typename I>
 I middle(I f, I l) {
-  static_assert(
-    std::numeric_limits<DifferenceType<I>>::max() <=
-    std::numeric_limits<size_t>::max(),
-    "iterators difference type is too big");
+  static_assert(std::numeric_limits<DifferenceType<I>>::max() <=
+                    std::numeric_limits<size_t>::max(),
+                "iterators difference type is too big");
   return std::next(f, static_cast<size_t>(std::distance(f, l)) / 2);
 }
 
@@ -677,6 +678,7 @@ I sort_and_unique(I f, I l) {
   return sort_and_unique(f, l, less{});
 }
 
+// clang-format off
 template <typename I1, typename I2, typename O, typename Compare>
 O set_union_unique_linear(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp) {
   if (f1 == l1) goto copySecond;
@@ -705,12 +707,14 @@ copySecond:
 copyFirst:
   return srt::copy(f1, l1, o);
 }
+// clang-format on
 
 template <typename I1, typename I2, typename O>
 O set_union_unique_linear(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
   return set_union_unique_linear(f1, l1, f2, l2, o, less{});
 }
 
+// clang-format off
 template <typename I1, typename I2, typename O, typename Compare>
 O set_union_unique_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp) {
   if (f1 == l1) goto copySecond;
@@ -746,6 +750,7 @@ O set_union_unique_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o, Compare comp) {
  copyFirst:
   return srt::copy(f1, l1, o);
 }
+// clang-format on
 
 template <typename I1, typename I2, typename O>
 O set_union_unique_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o) {
@@ -776,11 +781,11 @@ I partition_point_biased(I f, I l, P p) {
 template <typename I, typename P>
 I partition_point_hinted(I f, I hint, I l, P p) {
   I rhs = partition_point_biased(hint, l, p);
-  if (rhs != hint)
-    return rhs;
+  if (rhs != hint) return rhs;
 
   return partition_point_biased(std::reverse_iterator<I>(hint),
-                                std::reverse_iterator<I>(f), not_fn(p)).base();
+                                std::reverse_iterator<I>(f), not_fn(p))
+      .base();
 }
 
 template <typename I, typename V, typename Compare>
@@ -836,7 +841,7 @@ void inplace_merge_rotating_middles(I f, I m, I l, Compare comp) {
   I right_m = std::lower_bound(m, l, *left_m);
   m = std::rotate(left_m, m, right_m);
 
-  if (f == left_m) return; // middle of one element is always that element.
+  if (f == left_m) return;  // middle of one element is always that element.
   inplace_merge_rotating_middles(m, right_m, l, comp);
   inplace_merge_rotating_middles(f, left_m, m, comp);
 }
@@ -847,10 +852,7 @@ void inplace_merge_rotating_middles(I f, I m, I l) {
 }
 
 template <typename I, typename Compare>
-void inplace_merge_rotating_middles_buffered(I f,
-                                             I m,
-                                             I l,
-                                             Compare comp,
+void inplace_merge_rotating_middles_buffered(I f, I m, I l, Compare comp,
                                              srt::ibuffer<I>& buf) {
   if (f == m || m == l) return;
   I left_m = srt::middle(f, m);
@@ -858,15 +860,13 @@ void inplace_merge_rotating_middles_buffered(I f,
   m = srt::rotate_buffered(left_m, m, right_m, buf);
   buf.clear();
 
-  if (f == left_m) return; // middle of one element is always that element.
+  if (f == left_m) return;  // middle of one element is always that element.
   inplace_merge_rotating_middles_buffered(m, right_m, l, comp, buf);
   inplace_merge_rotating_middles_buffered(f, left_m, m, comp, buf);
 }
 
 template <typename I>
-void inplace_merge_rotating_middles_buffered(I f,
-                                             I m,
-                                             I l,
+void inplace_merge_rotating_middles_buffered(I f, I m, I l,
                                              srt::ibuffer<I>& buf) {
   return inplace_merge_rotating_middles_buffered(f, m, l, less{}, buf);
 }
@@ -889,8 +889,7 @@ void resize_with_junk(C& c, T&& sample, ContainerSizeType<C> new_len) {
 
 // flat_set -------------------------------------------------------------------
 
-template <typename Key,
-          typename Compare = less,
+template <typename Key, typename Compare = less,
           typename UnderlyingType = std::vector<Key>>
 // requires (todo)
 class flat_set {
@@ -923,13 +922,11 @@ class flat_set {
         : value_compare(comp), body_{std::forward<Args>(args)...} {};
 
     underlying_type body_;
-  }
-  impl_;
+  } impl_;
 
   template <typename V>
   using type_for_value_compare =
-      typename std::conditional<TransparentComparator<value_compare>(),
-                                V,
+      typename std::conditional<TransparentComparator<value_compare>(), V,
                                 value_type>::type;
 
   iterator const_cast_iterator(const_iterator c_it) {
@@ -1038,7 +1035,8 @@ class flat_set {
     // Need to count elements.
     if (!ForwardIterator<I>()) {
       underlying_type buf(f, l, body().get_allocator());
-      insert_sorted(std::make_move_iterator(buf.begin()), std::make_move_iterator(buf.end()));
+      insert_sorted(std::make_move_iterator(buf.begin()),
+                    std::make_move_iterator(buf.end()));
       return;
     }
 
@@ -1049,7 +1047,8 @@ class flat_set {
   void insert(I f, I l) {
     underlying_type buf(f, l, body().get_allocator());
     buf.erase(sort_and_unique(buf.begin(), buf.end()), buf.end());
-    insert_sorted(std::make_move_iterator(buf.begin()), std::make_move_iterator(buf.end()));
+    insert_sorted(std::make_move_iterator(buf.begin()),
+                  std::make_move_iterator(buf.end()));
   }
 
   template <typename... Args>
@@ -1104,8 +1103,7 @@ class flat_set {
   template <typename V>
   std::pair<iterator, iterator> equal_range(const V& v) {
     auto pos = lower_bound(v);
-    if (pos == end() || value_comp()(v, *pos))
-      return {pos, pos};
+    if (pos == end() || value_comp()(v, *pos)) return {pos, pos};
 
     return {pos, std::next(pos)};
   }
@@ -1113,8 +1111,7 @@ class flat_set {
   template <typename V>
   std::pair<const_iterator, const_iterator> equal_range(const V& v) const {
     auto pos = lower_bound(v);
-    if (pos == end() || value_comp()(v, *pos))
-      return {pos, pos};
+    if (pos == end() || value_comp()(v, *pos)) return {pos, pos};
 
     return {pos, std::next(pos)};
   }
@@ -1182,9 +1179,7 @@ class flat_set {
   }
 };
 
-template <typename Key,
-          typename Comparator,
-          typename UnderlyingType,
+template <typename Key, typename Comparator, typename UnderlyingType,
           typename P>
 // requires UnaryPredicate<P(reference)>
 void erase_if(flat_set<Key, Comparator, UnderlyingType>& x, P p) {

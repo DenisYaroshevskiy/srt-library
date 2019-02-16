@@ -2,11 +2,11 @@
 
 #include <algorithm>
 #include <functional>
+#include <list>
 #include <numeric>
 #include <random>
 #include <set>
 #include <string>
-#include <list>
 #include <vector>
 
 #define CATCH_CONFIG_MAIN
@@ -39,15 +39,18 @@ struct no_default_or_copy {
   no_default_or_copy(no_default_or_copy&&) = default;
   no_default_or_copy& operator=(no_default_or_copy&&) = default;
 
-  friend bool operator<(const no_default_or_copy& x, const no_default_or_copy& y) {
+  friend bool operator<(const no_default_or_copy& x,
+                        const no_default_or_copy& y) {
     return x.body < y.body;
   }
 
-  friend bool operator==(const no_default_or_copy& x, const no_default_or_copy& y) {
+  friend bool operator==(const no_default_or_copy& x,
+                         const no_default_or_copy& y) {
     return x.body == y.body;
   }
 
-  friend std::ostream& operator<<(std::ostream& out, const no_default_or_copy& x) {
+  friend std::ostream& operator<<(std::ostream& out,
+                                  const no_default_or_copy& x) {
     out << x.body;
     return out;
   }
@@ -503,7 +506,8 @@ TEST_CASE("flat_set_insert_f_l_weird_types", "[flat_cainers, flat_set]") {
 
   srt::flat_set<no_default_or_copy> c;
   c.emplace(4);
-  c.insert(std::make_move_iterator(values.begin()), std::make_move_iterator(values.end()));
+  c.insert(std::make_move_iterator(values.begin()),
+           std::make_move_iterator(values.end()));
 
   std::vector<no_default_or_copy> expected;
 
