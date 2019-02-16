@@ -17,8 +17,6 @@ struct strange_cmp : srt::less {
   explicit strange_cmp(int) {}
 };
 
-using int_vec = srt::vector<int>;
-
 using int_set = srt::flat_set<int>;
 using move_only_set = srt::flat_set<move_only_int>;
 using std_int_vec = int_set::underlying_type;
@@ -162,21 +160,32 @@ TEST_CASE("set_union_unique_biased", "[algorithms]") {
   set_union_unique_test(set_union_unique_biased{});
 }
 
-// vector -----------------------------------------------------------------
-
-TEST_CASE("vector_types", "[vector]") {
-  static_assert((std::is_same<int, int_vec::value_type>::value), "");
-  static_assert((std::is_same<int&, int_vec::reference>::value), "");
-  static_assert((std::is_same<const int&, int_vec::const_reference>::value),
-                "");
-  static_assert((std::is_same<int*, int_vec::pointer>::value), "");
-  static_assert((std::is_same<const int*, int_vec::const_pointer>::value), "");
-  static_assert((std::is_same<int*, int_vec::iterator>::value), "");
-  static_assert((std::is_same<const int*, int_vec::const_iterator>::value), "");
+TEST_CASE("resize_with_junk int", "[algorithms]") {
+  std_int_vec v;
+  int int_sample = 0;
+  srt::resize_with_junk(v, int_sample, 3);
+  REQUIRE(3 == v.size());
 }
 
-TEST_CASE("vector_default_constructor", "vector") {
-  int_vec v;
+TEST_CASE("resize_with_junk weird type", "[algorithms]") {
+  struct no_default_or_copy {
+    no_default_or_copy(int) {}
+    no_default_or_copy(no_default_or_copy&&) {}
+    no_default_or_copy& operator=(no_default_or_copy&&) { return *this; }
+  };
+
+
+  std::vector<no_default_or_copy> v;
+  no_default_or_copy sample(0);
+
+  srt::resize_with_junk(v, sample, 3);
+  REQUIRE(3 == v.size());
+
+  srt::resize_with_junk(v, sample, 1);
+  REQUIRE(1 == v.size());
+
+  srt::resize_with_junk(v, sample, 5);
+  REQUIRE(5 == v.size());
 }
 
 // flat_set ---------------------------------------------------------------

@@ -46,6 +46,12 @@ using DifferenceType = typename std::iterator_traits<I>::difference_type;
 template <typename I>
 using IteratorCategory = typename std::iterator_traits<I>::iterator_category;
 
+template <typename C>
+using ContainerValueType = typename C::value_type;
+
+template <typename C>
+using ContainerSizeType = typename C::size_type;
+
 // concepts ------------------------------------------------------------------
 
 template <typename I>
@@ -57,6 +63,11 @@ constexpr bool RandomAccessIterator() {
 template <typename T>
 constexpr bool TransparentComparator() {
   return detail::has_is_transparent_member<T>::value;
+}
+
+template <typename C>
+constexpr bool ResizeableContainer() {
+  return std::is_trivially_default_constructible<ContainerValueType<C>>::value;
 }
 
 // predeclarations ------------------------------------------------------------
@@ -175,9 +186,93 @@ template <typename I>
 // requires RandomAccessIterator<I>
 void inplace_merge_rotating_middles_buffered(I f, I m, I l);
 
+template <typename C>
+// requires RandomAccessContainer<C> && std::is_same<ContainerValueType<C>, V>
+void resize_with_junk(C& c, ContainerValueType<C>& sample, ContainerSizeType<C> new_len);
+
 // implementation -------------------------------------------------------------
 
 namespace detail {
+
+template <typename T>
+class junk_iterator {
+  public:
+    using difference_type = std::ptrdiff_t;
+    using value_type = T;
+    using reference = T&&;
+    using pointer = T*;
+    using iterator_category = std::random_access_iterator_tag;
+
+    junk_iterator(pointer junk_sample, difference_type count) :
+      junk_sample_{junk_sample},
+      count_{count} {}
+
+    reference operator*() const { return std::move(*junk_sample_); }
+
+    junk_iterator& operator++() {
+      ++count_;
+      return *this;
+    }
+    junk_iterator operator++(int) {
+      junk_iterator tmp = *this;
+      operator++();
+      return tmp;
+    }
+
+    junk_iterator& operator+=(difference_type distance) {
+      count_ += distance;
+      return *this;
+    }
+
+    friend junk_iterator operator+(const junk_iterator& x, const junk_iterator& y) {
+      junk_iterator tmp = x;
+      tmp += x;
+      return tmp;
+    }
+
+    friend difference_type operator-(const junk_iterator& x, const junk_iterator& y) {
+      return x.count_ - y.count_;
+    }
+
+    friend bool operator==(const junk_iterator& x, const junk_iterator& y) {
+      return x.count_ == y.count_;
+    }
+
+    friend bool operator!=(const junk_iterator& x, const junk_iterator& y) {
+      return !(x == y);
+    }
+
+  private:
+    pointer junk_sample_;
+    difference_type count_;
+};
+
+template <typename T>
+std::pair<junk_iterator<T>, junk_iterator<T>>
+junk_range(T& junk_sample, std::ptrdiff_t size) {
+  return {junk_iterator<T>{&junk_sample, 0}, junk_iterator<T>{&junk_sample, size}};
+}
+
+template <typename C>
+typename std::enable_if<ResizeableContainer<C>(), void>::type
+do_resize_with_junk(C& c, ContainerValueType<C>&, ContainerSizeType<C> new_len) {
+  c.resize(new_len);
+}
+
+template <typename C>
+// requires Container<C>
+typename std::enable_if<!ResizeableContainer<C>(), void>::type
+do_resize_with_junk(C& c, ContainerValueType<C>& sample, ContainerSizeType<C> new_len) {
+  if (new_len <= c.size()) {
+    c.erase(std::prev(c.end(), c.size() - new_len), c.end());
+    return;
+  }
+
+  ContainerValueType<C> junk_sample = std::move(sample);
+  sample = std::move(junk_sample);
+  auto junk = junk_range(junk_sample, new_len - c.size());
+  c.insert(c.end(), junk.first, junk.second);
+}
 
 template <typename F>
 // requires Predicate<F>
@@ -200,9 +295,9 @@ struct inverse_t {
   }
 };
 
-// libc++ currently does not optimize to memmove for reverse iterators.
+// libc++ currently does not copy optimize to memmove for reverse iterators.
 // This is a small hack to fix this.
-// A proper patch has been submitted: https://reviews.llvm.org/D38653
+// A proper patch has been submitted: https://reviews.llvm.org/D38653 but it was rejected.
 
 template <typename I>
 struct is_reverse_iterator : std::false_type {};
@@ -360,12 +455,13 @@ std::pair<I1, I1> set_union_into_tail(I1 buf, I1 f1, I1 l1, I2 f2, I2 l2, P p) {
 }
 
 template <typename C, typename I, typename P>
-// requires  Container<C> &&  ForwardIterator<I> &&
-//           StrictWeakOrdering<P(ValueType<C>)>
+// requires Container<C> &&  ForwardIterator<I> &&
+//          StrictWeakOrdering<P(ValueType<C>)>
 void insert_first_last_impl(C& c, I f, I l, P p) {
   auto new_len = std::distance(f, l);
   auto orig_len = c.size();
-  c.resize(orig_len + 2 * new_len);
+
+  resize_with_junk(c, *f, orig_len + 2 * new_len);
 
   Iterator<C> orig_f = c.begin();
   Iterator<C> orig_l = c.begin() + orig_len;
@@ -476,8 +572,6 @@ I rotate_buffered_rhs(I f, I m, I l, srt::ibuffer<I>& buf) {
   std::move(buf_f, buf_l, f);
   return res;
 }
-
-
 
 }  // namespace detail
 
@@ -792,74 +886,10 @@ void inplace_merge_rotating_middles_buffered(I f, I m, I l) {
   inplace_merge_rotating_middles_buffered(f, m, l, less{});
 }
 
-// vector ---------------------------------------------------------------------
-// std::vector's api is not rich enough to implement flat_sets on top of it
-// in the most efficient way - we have to have access to the capacity.
-// This implementation of vector supports that.
-//
-// Note: we do not support the vector<bool> specialization. flat_set<bool>.
-
-template <typename T, typename Alloc = std::allocator<T>>
-// requires SemiRegular<T> && Allocator<Alloc>
-class vector {
-  using alloc_traits = std::allocator_traits<Alloc>;
- public:
-  using value_type = T;
-  using allocator_type = Alloc;
-  using reference = value_type&;
-  using const_reference = const value_type&;
-  using size_type = typename alloc_traits::size_type;
-  using difference_type = typename alloc_traits::difference_type;
-  using pointer = typename alloc_traits::pointer;
-  using const_pointer = typename alloc_traits::const_pointer;
-  using iterator = pointer;
-  using const_iterator = const_pointer;
-
- private:
-  struct impl_t : allocator_type
-  {
-    impl_t() = default;
-    impl_t(const allocator_type& a) : allocator_type(a) {}
-    pointer begin_ = nullptr;
-    pointer end_ = nullptr;
-    pointer buffer_end_ = nullptr;
-  } impl_;
-
-  allocator_type& alloc() noexcept { return impl_; }
-  const allocator_type& alloc() const noexcept { return impl_; }
-
- public:
-  allocator_type get_allocator() const noexcept {
-    return alloc();
-  }
-
-  iterator begin() noexcept { return impl_.begin_; }
-  const_iterator begin() const noexcept { return impl_.begin_; }
-  const_iterator cbegin() const noexcept { return begin(); }
-
-  iterator end() noexcept { return impl_.end_; }
-  const_iterator end() const noexcept { return impl_.end_; }
-  const_iterator cend() const noexcept { return end(); }
-
-  iterator buffer_end() noexcept { return impl_.buffer_end_; }
-  const_iterator buffer_end() const noexcept { return impl_.buffer_end_;}
-  const_iterator cbuffer_end() const noexcept { return buffer_end();}
-
-  size_type capacity() const noexcept { return buffer_end() - begin(); }
-  void clear() noexcept {
-    while (begin() != impl_.end_) {
-      alloc_traits::destroy(alloc(), &*--impl_.end_);
-    }
-  }
-
-  vector() noexcept(
-      std::is_nothrow_default_constructible<allocator_type>::value) {}
-  vector(const allocator_type& a) : impl_(a) {}
-  ~vector() {
-    clear();
-    alloc_traits::deallocate(alloc(), begin(), capacity());
-  }
-};
+template <typename C>
+void resize_with_junk(C& c, ContainerValueType<C>& sample, ContainerSizeType<C> new_len) {
+  detail::do_resize_with_junk(c, sample, new_len);
+}
 
 // flat_set -------------------------------------------------------------------
 
