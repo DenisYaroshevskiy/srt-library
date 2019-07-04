@@ -499,9 +499,9 @@ void insert_sorted_unique_impl(C& c, I f, I l, P p) {
   Iterator<C> orig_l = c.begin() + orig_len;
 
   auto reverse_remainig_buf_range = detail::set_union_into_tail(
-      make_reverse_iterator(c.end()), make_reverse_iterator(orig_l),
-      make_reverse_iterator(orig_f), make_reverse_iterator(l),
-      make_reverse_iterator(f), inverse_fn(p));
+      detail::make_reverse_iterator(c.end()), detail::make_reverse_iterator(orig_l),
+      detail::make_reverse_iterator(orig_f), detail::make_reverse_iterator(l),
+      detail::make_reverse_iterator(f), inverse_fn(p));
 
   c.erase(reverse_remainig_buf_range.second.base(),
           reverse_remainig_buf_range.first.base());
