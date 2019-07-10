@@ -127,8 +127,25 @@ template <typename I1, typename I2, typename O, typename Compare>
 // requires RandomAccessIterator<I>
 O set_union_unique_biased(I1 f1, I1 l1, I2 f2, I2 l2, O o);
 
+template <typename I, typename N, typename P>
+// requires ForwardIterator<I> && UnaryPredicate<P, ValueType<I>>
+I partition_point_n(I f, DifferenceType<I> n, P p);
+
 template <typename I, typename P>
-// requires RandomAccessIterator<I> && UnaryPredicate<P, ValueType<I>>
+// requires ForwardIterator<I> && UnaryPredicate<P, ValueType<I>>
+I partition_point(I f, I l, P p);
+
+template <typename I, typename V, typename Compare>
+// requires ForwardIterator<I> && StrictWeakOrdering<Compare<ValueType<I>>
+I lower_bound(I f, I l, const V& v, Compare comp);
+
+template <typename I, typename V>
+// requires RandomAccessIterator<I>
+I lower_bound(I f, I l, const V& v);
+
+template <typename I, typename P>
+// requires RandomAccessIterator<I> && UnaryPredicate<P, ValueType<I>>  // TODO:
+// copy support for ForwardIterator
 I partition_point_biased(I f, I l, P p);
 
 template <typename I, typename P>
@@ -140,7 +157,7 @@ template <typename I, typename V, typename Compare>
 I lower_bound_biased(I f, I l, V v, Compare comp);
 
 template <typename I, typename V>
-// requires RandomAccessIterator<I>
+// requires RandomAccessIterator<I>  // TODO: pass by const ref.
 I lower_bound_biased(I f, I l, V v);
 
 template <typename I, typename V, typename Compare>
@@ -499,7 +516,8 @@ void insert_sorted_unique_impl(C& c, I f, I l, P p) {
   Iterator<C> orig_l = c.begin() + orig_len;
 
   auto reverse_remainig_buf_range = detail::set_union_into_tail(
-      detail::make_reverse_iterator(c.end()), detail::make_reverse_iterator(orig_l),
+      detail::make_reverse_iterator(c.end()),
+      detail::make_reverse_iterator(orig_l),
       detail::make_reverse_iterator(orig_f), detail::make_reverse_iterator(l),
       detail::make_reverse_iterator(f), inverse_fn(p));
 
@@ -590,6 +608,19 @@ I rotate_buffered_rhs(I f, I m, I l, srt::ibuffer<I>& buf) {
   I res = std::move_backward(f, m, l);
   std::move(buf_f, buf_l, f);
   return res;
+}
+
+template <typename N>
+typename std::enable_if<std::is_integral<N>::value, N>::type  //
+half_positive(N n) {
+  using UnsignedN = typename std::make_unsigned<N>::type;
+  return static_cast<N>(static_cast<UnsignedN>(n) / 2);
+}
+
+template <typename N>
+typename std::enable_if<!std::is_integral<N>::value, N>::type  //
+half_positive(N n) {
+  return n / 2;
 }
 
 }  // namespace detail
@@ -787,6 +818,36 @@ O copy_until_adjacent_check(I f, I l, O o, P p) {
 template <typename I, typename O>
 O copy_until_sorted(I f, I l, O o) {
   return copy_until_adjacent_check(f, l, o, less{});
+}
+
+template <typename I, typename P>
+I partition_point_n(I f, DifferenceType<I> n, P p) {
+  while (n) {
+    DifferenceType<I> n2 = detail::half_positive(n);
+    I m = std::next(f, n2);
+    if (p(*m)) {
+      f = ++m;
+      n -= n2 + 1;
+    } else {
+      n = n2;
+    }
+  }
+  return f;
+}
+
+template <typename I, typename P>
+I partition_point(I f, I l, P p) {
+  return srt::partition_point_n(f, std::distance(f, l), p);
+}
+
+template <typename I, typename V, typename Compare>
+I lower_bound(I f, I l, const V& v, Compare comp) {
+  return srt::partition_point(f, l, [&](Reference<I> x) { return comp(x, v); });
+}
+
+template <typename I, typename V>
+I lower_bound(I f, I l, const V& v) {
+  return srt::lower_bound(f, l, v, srt::less{});
 }
 
 template <typename I, typename P>

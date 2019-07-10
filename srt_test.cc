@@ -62,6 +62,43 @@ static_assert(!std::is_default_constructible<no_default_or_copy>::value, "");
 static_assert(!std::is_copy_constructible<no_default_or_copy>::value, "");
 static_assert(!std::is_copy_assignable<no_default_or_copy>::value, "");
 
+template <typename I, typename Op>
+void lower_bound_test_run_for_one_input(I f, I l, Op op) {
+  for (I looking_for = f; looking_for != l; ++looking_for) {
+    REQUIRE(op(f, l, *looking_for) == std::lower_bound(f, l, *looking_for));
+  }
+
+  for (int lookingFor :
+       {std::numeric_limits<int>::min(), std::numeric_limits<int>::max()}) {
+    REQUIRE(op(f, l, lookingFor) == std::lower_bound(f, l, lookingFor));
+  }
+}
+
+template <typename Container, typename Op>
+void lower_bound_run_for_container(const Container& c, Op op) {
+  for (auto i = c.begin(); i != c.end(); ++i) {
+    lower_bound_test_run_for_one_input(c.begin(), i, op);
+  }
+}
+
+template <typename Op>
+void lower_bound_test(Op op) {
+  size_t kSize = 200;
+  std::vector<int> inputs(kSize);
+
+  for (int i = 0, j = 0; i < static_cast<int>(kSize);) {
+    inputs[i++] = j;
+    inputs[i++] = j;
+    ++j;
+  }
+
+  lower_bound_run_for_container(inputs, op);
+
+  std::list<int> list_inputs(inputs.begin(), inputs.end());
+
+  lower_bound_run_for_container(list_inputs, op);
+}
+
 }  // namespace
 
 // algorithms -----------------------------------------------------------------
@@ -124,13 +161,26 @@ TEST_CASE("string_tmp_buffer", "[temporary_buffer]") {
   REQUIRE(in_buffer == vec({"1", "2", "3"}));
 }
 
-TEST_CASE("lower_bound_biased", "[algorithms]") {
-  std::vector<int> vec(1000);
-  std::iota(vec.begin(), vec.end(), 1);
-  for (int x = 0; x <= 1001; ++x) {
-    REQUIRE(std::lower_bound(vec.begin(), vec.end(), x) ==
-            srt::lower_bound_biased(vec.begin(), vec.end(), x));
+struct lower_bound_functor {
+  template <typename I, typename V>
+  I operator()(I f, I l, const V& v) {
+    return srt::lower_bound(f, l, v);
   }
+};
+
+TEST_CASE("lower_bound", "[algorithms]") {
+  lower_bound_test(lower_bound_functor());
+}
+
+struct lower_bound_biased_functor {
+  template <typename I, typename V>
+  I operator()(I f, I l, const V& v) {
+    return srt::lower_bound_biased(f, l, v);
+  }
+};
+
+TEST_CASE("lower_bound_biased", "[algorithms]") {
+  lower_bound_test(lower_bound_biased_functor());
 }
 
 TEST_CASE("lower_bound_hinted", "[algorithms]") {
